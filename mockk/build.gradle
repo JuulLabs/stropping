@@ -1,19 +1,17 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion versions.sdk.compile
     buildToolsVersion versions.buildTools
 
     defaultConfig {
-        applicationId "com.juul.stropping.example"
         minSdkVersion versions.sdk.min
         targetSdkVersion versions.sdk.target
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'consumer-rules.pro'
     }
 
     buildTypes {
@@ -22,27 +20,22 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation deps.androidx.appcompat
     implementation deps.androidx.core
-    implementation deps.androidx.constraintlayout
-    implementation deps.androidx.lifecycle
-    implementation deps.dagger.base
+    implementation deps.androidx.test.ext.junit
+    implementation deps.androidx.test.runner
     implementation deps.dagger.android.base
     implementation deps.dagger.android.support
     implementation deps.kotlin.stdlib
+    implementation deps.kotlin.reflect
+    api deps.mockk.android
+    api deps.stropping.core
 
     testImplementation deps.junit
     testImplementation deps.kotlin.test.junit
-
-    androidTestImplementation deps.androidx.test.espresso.core
-    androidTestImplementation deps.androidx.test.ext.junit
-    androidTestImplementation deps.androidx.test.runner
-    androidTestImplementation deps.stropping.mockk
-
-    kapt deps.dagger.android.processor
-    kapt deps.dagger.compiler
 }
