@@ -1,19 +1,17 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion versions.sdk.compile
     buildToolsVersion versions.buildTools
 
     defaultConfig {
-        applicationId "com.juul.stropping.example"
         minSdkVersion versions.sdk.min
         targetSdkVersion versions.sdk.target
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'consumer-rules.pro'
     }
 
     buildTypes {
@@ -28,17 +26,13 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation deps.androidx.appcompat
     implementation deps.androidx.core
-    implementation deps.androidx.constraintlayout
+    implementation deps.androidx.test.ext.junit
+    implementation deps.androidx.test.runner
     implementation deps.dagger.android
     implementation deps.dagger.androidsupport
     implementation deps.kotlin.stdlib
+    implementation deps.kotlin.reflect
 
     testImplementation deps.junit
     testImplementation deps.kotlin.test.junit
-
-    androidTestImplementation deps.androidx.test.runner
-    androidTestImplementation deps.androidx.test.espresso.core
-    androidTestImplementation deps.stropping.core
-
-    kapt deps.dagger.androidprocessor
 }

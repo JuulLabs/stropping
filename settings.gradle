@@ -1,2 +1,4 @@
-rootProject.name='Stropping'
-include ':example'
+rootProject.name = 'Stropping'
+include ':core',
+        ':example'
+
