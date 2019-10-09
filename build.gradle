@@ -25,11 +25,16 @@ buildscript {
                             ],
                             runner  : 'androidx.test:runner:1.2.0',
                     ],
+                    lifecycle       : 'androidx.lifecycle:lifecycle-extensions:2.1.0'
             ],
             dagger   : [
-                    android         : "com.google.dagger:dagger-android:$versions.dagger",
-                    androidsupport  : "com.google.dagger:dagger-android-support:$versions.dagger",
-                    androidprocessor: "com.google.dagger:dagger-android-processor:$versions.dagger",
+                    android : [
+                            base     : "com.google.dagger:dagger-android:$versions.dagger",
+                            support  : "com.google.dagger:dagger-android-support:$versions.dagger",
+                            processor: "com.google.dagger:dagger-android-processor:$versions.dagger",
+                    ],
+                    base    : "com.google.dagger:dagger:$versions.dagger",
+                    compiler: "com.google.dagger:dagger-compiler:$versions.dagger",
             ],
             junit    : 'junit:junit:4.12',
             kotlin   : [

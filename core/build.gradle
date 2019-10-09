@@ -28,8 +28,8 @@ dependencies {
     implementation deps.androidx.core
     implementation deps.androidx.test.ext.junit
     implementation deps.androidx.test.runner
-    implementation deps.dagger.android
-    implementation deps.dagger.androidsupport
+    implementation deps.dagger.android.base
+    implementation deps.dagger.android.support
     implementation deps.kotlin.stdlib
     implementation deps.kotlin.reflect
 

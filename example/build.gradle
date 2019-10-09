@@ -29,16 +29,20 @@ dependencies {
     implementation deps.androidx.appcompat
     implementation deps.androidx.core
     implementation deps.androidx.constraintlayout
-    implementation deps.dagger.android
-    implementation deps.dagger.androidsupport
+    implementation deps.androidx.lifecycle
+    implementation deps.dagger.base
+    implementation deps.dagger.android.base
+    implementation deps.dagger.android.support
     implementation deps.kotlin.stdlib
 
     testImplementation deps.junit
     testImplementation deps.kotlin.test.junit
 
-    androidTestImplementation deps.androidx.test.runner
     androidTestImplementation deps.androidx.test.espresso.core
+    androidTestImplementation deps.androidx.test.ext.junit
+    androidTestImplementation deps.androidx.test.runner
     androidTestImplementation deps.stropping.core
 
-    kapt deps.dagger.androidprocessor
+    kapt deps.dagger.android.processor
+    kapt deps.dagger.compiler
 }
