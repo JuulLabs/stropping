@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.test.platform.app.InstrumentationRegistry
 import com.juul.stropping.extension.forceGet
 import com.juul.stropping.extension.forceSet
-import com.juul.stropping.extension.importDagger
+import com.juul.stropping.extension.importDaggerComponent
 import com.juul.stropping.extension.inject
 import dagger.android.DaggerApplication
 import dagger.android.DispatchingAndroidInjector
@@ -53,14 +53,15 @@ class ReplacementHandle(
     /** Proxy dispatching android injector. */
     val proxyInjector = mockk<DispatchingAndroidInjector<Any>> {
         every { inject(any()) } answers { call ->
-            kodein.inject(call.invocation.args.first()!!)
+            val receiver = checkNotNull(call.invocation.args.single())
+            kodein.inject(receiver)
         }
     }
 
     /** Source application graph, created through reflection on the component class. */
-    private val applicationGraph = Kodein {
+    private val applicationGraph = Kodein(allowSilentOverride = true) {
         import(androidXModule(application))
-        importDagger(componentClass)
+        importDaggerComponent(componentClass)
         bind<DispatchingAndroidInjector<Any>>() with instance(proxyInjector)
     }
 
@@ -86,13 +87,11 @@ class ReplacementHandle(
         kodein.addExtend(applicationGraph)
     }
 
-    inline fun <reified T : Any> overwrite(
-        value: T
-    ) {
+    inline fun <reified T : Any> overwrite(value: T) {
         val kodein = this::class.java.getDeclaredField("kodein")
             .forceGet<ConfigurableKodein>(this)
         kodein.addConfig {
-            bind<T>() with instance(value)
+            bind<T>(overrides = true) with instance(value)
         }
     }
 }

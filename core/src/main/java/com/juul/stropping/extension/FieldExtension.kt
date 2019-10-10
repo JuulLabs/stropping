@@ -2,7 +2,7 @@ package com.juul.stropping.extension
 
 import java.lang.reflect.Field
 
-inline fun <T> Field.access(
+internal inline fun <T> Field.access(
     withAccess: Field.() -> T
 ): T {
     val wasAccessible = isAccessible

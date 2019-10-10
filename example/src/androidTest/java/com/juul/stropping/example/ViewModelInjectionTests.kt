@@ -17,8 +17,18 @@ class ViewModelInjectionTests {
         Replacements.of<Component> {
             reset()
             overwriteWithMockK<SimpleApi> {
-                every { getValue() } returns "Mocked Value"
+                every { getValue() } returns "Test From Kodein-injected MockK"
             }
+        }
+        val scenario = ActivityScenario.launch(MainActivity::class.java)
+        Thread.sleep(5000)
+        scenario.close()
+    }
+
+    @Test
+    fun useSimpleApiText() {
+        Replacements.of<Component> {
+            reset()
         }
         val scenario = ActivityScenario.launch(MainActivity::class.java)
         Thread.sleep(5000)
