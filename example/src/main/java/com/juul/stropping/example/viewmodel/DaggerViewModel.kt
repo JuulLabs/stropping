@@ -1,20 +1,17 @@
 package com.juul.stropping.example.viewmodel
 
-import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import dagger.android.DispatchingAndroidInjector
+import dagger.android.AndroidInjector
 import dagger.android.HasAndroidInjector
-import javax.inject.Inject
 
 abstract class DaggerViewModel(
-    application: Application
+    application: android.app.Application
 ) : AndroidViewModel(application), HasAndroidInjector {
-    @Inject
-    protected lateinit var androidInjector: DispatchingAndroidInjector<Any>
-
-    override fun androidInjector() = androidInjector
+    final override fun androidInjector(): AndroidInjector<Any> =
+        getApplication<com.juul.stropping.example.Application>().androidInjector()
 
     init {
-        (application as HasAndroidInjector).androidInjector().inject(this)
+        @Suppress("LeakingThis")
+        androidInjector().inject(this)
     }
 }

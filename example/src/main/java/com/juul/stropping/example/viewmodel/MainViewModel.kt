@@ -9,7 +9,7 @@ class MainViewModel(
 ) : DaggerViewModel(application) {
 
     @Inject
-    protected lateinit var simpleApi: SimpleApi
+    lateinit var simpleApi: SimpleApi
 
     val displayText: String = simpleApi.getValue()
 }
