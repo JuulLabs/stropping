@@ -5,7 +5,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.juul.stropping.Replacements
 import com.juul.stropping.example.activity.MainActivity
 import com.juul.stropping.example.api.SimpleApi
-import com.juul.stropping.mockk.addMockk
+import com.juul.stropping.mockk.overwriteWithMockK
 import io.mockk.every
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -15,7 +15,8 @@ class ViewModelInjectionTests {
     @Test
     fun replaceSimpleApiText() {
         Replacements.of<Component> {
-            addMockk<SimpleApi> {
+            reset()
+            overwriteWithMockK<SimpleApi> {
                 every { getValue() } returns "Mocked Value"
             }
         }

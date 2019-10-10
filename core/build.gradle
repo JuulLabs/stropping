@@ -20,6 +20,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    kotlinOptions {
+        jvmTarget = versions.jvmTarget
+    }
 }
 
 dependencies {
@@ -30,8 +34,12 @@ dependencies {
     implementation deps.androidx.test.runner
     implementation deps.dagger.android.base
     implementation deps.dagger.android.support
+    implementation deps.kodein.android
+    implementation deps.kodein.conf
+    implementation deps.kodein.jvm
     implementation deps.kotlin.stdlib
     implementation deps.kotlin.reflect
+    implementation deps.mockk.android
 
     testImplementation deps.junit
     testImplementation deps.kotlin.test.junit
