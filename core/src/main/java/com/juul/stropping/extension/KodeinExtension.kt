@@ -16,12 +16,14 @@ import org.kodein.di.generic.provider
 import org.kodein.di.generic.singleton
 import java.lang.reflect.Type
 import javax.inject.Inject
+import javax.inject.Named
 import javax.inject.Singleton
 import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KType
 import kotlin.reflect.full.declaredMemberFunctions
+import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.full.valueParameters
 import kotlin.reflect.jvm.javaType
@@ -32,7 +34,8 @@ private fun Kodein.Builder.bind(
     element: KAnnotatedElement,
     build: NoArgSimpleBindingKodein<*>.() -> Any
 ) {
-    val bind = Bind(createTypeToken(type))
+    val tag = element.findAnnotation<Named>()?.value
+    val bind = Bind(createTypeToken(type), tag)
     if (element.hasAnnotation<Singleton>()) {
         bind with singleton { this.build() }
     } else {

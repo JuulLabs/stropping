@@ -87,11 +87,14 @@ class ReplacementHandle(
         kodein.addExtend(applicationGraph)
     }
 
-    inline fun <reified T : Any> overwrite(value: T) {
+    inline fun <reified T : Any> overwrite(
+        value: T,
+        named: String? = null
+    ) {
         val kodein = this::class.java.getDeclaredField("kodein")
             .forceGet<ConfigurableKodein>(this)
         kodein.addConfig {
-            bind<T>(overrides = true) with instance(value)
+            bind<T>(overrides = true, tag = named) with instance(value)
         }
     }
 }

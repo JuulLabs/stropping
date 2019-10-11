@@ -3,9 +3,11 @@ package com.juul.stropping.extension
 import com.juul.stropping.utility.createTypeToken
 import org.kodein.di.DKodein
 import javax.inject.Inject
+import javax.inject.Named
 import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
+import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.full.valueParameters
 
@@ -15,8 +17,10 @@ import kotlin.reflect.full.valueParameters
  */
 internal fun <R> DKodein.injectCall(callable: KCallable<R>, receiver: Any? = null): R {
     val params = callable.valueParameters
-        .map { Instance(createTypeToken(it.type)) }
-        .toTypedArray()
+        .map {
+            val tag = it.findAnnotation<Named>()?.value
+            Instance(createTypeToken(it.type), tag)
+        }.toTypedArray()
     return if (receiver != null) {
         callable.call(receiver, *params)
     } else {
