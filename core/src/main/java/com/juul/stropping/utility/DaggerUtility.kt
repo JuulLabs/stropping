@@ -2,9 +2,36 @@ package com.juul.stropping.utility
 
 import dagger.Component
 import dagger.Module
+import dagger.Provides
+import javassist.util.proxy.ProxyFactory
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 
+private val modules = mutableMapOf<KClass<*>, Any>()
+
+/**
+ * Uses reflection to create an instance of [kClass]. This allows us to call [Provides] functions.
+ *
+ * Uses [ProxyFactory] to create instances of interfaces or abstract classes, and constructs
+ * normal classes regularly.
+ */
+internal fun getModule(kClass: KClass<*>): Any = modules.getOrPut(kClass) {
+    if (kClass.isAbstract) {
+        ProxyFactory().apply {
+            superclass = kClass.java
+            setFilter { method -> !method.isAnnotationPresent(Provides::class.java) }
+        }.createClass().newInstance()
+    } else {
+        kClass.java.newInstance()
+    }
+}
+
+/**
+ * Returns a list of all classes in the [Component] annotation's [Component.modules].
+ *
+ * Throws [IllegalArgumentException] if [componentClass] represents a generic class or is not
+ * annotated with [Component].
+ */
 internal fun getModulesForComponentClass(componentClass: KClass<*>): List<KClass<*>> {
     require(componentClass.typeParameters.isEmpty())
     val component = requireNotNull(componentClass.findAnnotation<Component>())

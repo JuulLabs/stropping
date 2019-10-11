@@ -39,6 +39,7 @@ buildscript {
                     base    : "com.google.dagger:dagger:$versions.dagger",
                     compiler: "com.google.dagger:dagger-compiler:$versions.dagger",
             ],
+            javassist: 'org.javassist:javassist:3.26.0-GA',
             junit    : 'junit:junit:4.12',
             kodein   : [
                     android: "org.kodein.di:kodein-di-framework-android-x:$versions.kodein",

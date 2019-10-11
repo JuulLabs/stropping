@@ -1,7 +1,8 @@
 package com.juul.stropping.example.viewmodel
 
 import android.app.Application
-import com.juul.stropping.example.api.SimpleApi
+import com.juul.stropping.example.api.BoundApi
+import com.juul.stropping.example.api.ProvidedApi
 import javax.inject.Inject
 
 class MainViewModel(
@@ -9,7 +10,10 @@ class MainViewModel(
 ) : DaggerViewModel(application) {
 
     @Inject
-    lateinit var simpleApi: SimpleApi
+    lateinit var boundApi: BoundApi
 
-    val displayText: String = simpleApi.getValue()
+    @Inject
+    lateinit var providedApi: ProvidedApi
+
+    val displayText: String = "${boundApi.getValue()}\n${providedApi.getValue()}"
 }

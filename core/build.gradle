@@ -23,6 +23,7 @@ android {
 
     kotlinOptions {
         jvmTarget = versions.jvmTarget
+        freeCompilerArgs += "-Xuse-experimental=kotlin.Experimental"
     }
 }
 
@@ -34,6 +35,7 @@ dependencies {
     implementation deps.androidx.test.runner
     implementation deps.dagger.android.base
     implementation deps.dagger.android.support
+    implementation deps.javassist
     implementation deps.kodein.android
     implementation deps.kodein.conf
     implementation deps.kodein.jvm

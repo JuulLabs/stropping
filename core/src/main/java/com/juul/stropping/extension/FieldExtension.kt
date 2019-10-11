@@ -2,8 +2,12 @@ package com.juul.stropping.extension
 
 import java.lang.reflect.Field
 
+/**
+ * Do something with a [Field], guaranteeing it is accessible during [withAccess]. After the lambda
+ * completes, the value of [Field.isAccessible] is returned to whatever the original value was.
+ */
 internal inline fun <T> Field.access(
-    withAccess: Field.() -> T
+    crossinline withAccess: Field.() -> T
 ): T {
     val wasAccessible = isAccessible
     isAccessible = true
@@ -12,6 +16,7 @@ internal inline fun <T> Field.access(
     return blockResult
 }
 
+/** Calls [Field.set] while guaranteeing that it accessible during the call. */
 fun <T> Field.forceSet(
     receiver: Any,
     value: T
@@ -19,6 +24,7 @@ fun <T> Field.forceSet(
     set(receiver, value)
 }
 
+/** Calls [Field.get] while guaranteeing that it accessible during the call. */
 fun <T> Field.forceGet(
     receiver: Any
 ): T = access {
