@@ -26,9 +26,14 @@ internal fun <R> DKodein.injectCall(callable: KCallable<R>, receiver: Any? = nul
 
 /** Special case of [injectCall] which constructs a class given its type. */
 @UseExperimental(ExperimentalStdlibApi::class)
-internal fun DKodein.injectConstructor(type: KType): Any {
-    val constructors = (type.classifier as KClass<*>).constructors
+internal fun <T : Any> DKodein.injectConstructor(kClass: KClass<T>): T {
+    val constructors = kClass.constructors
     val constructor = constructors.singleOrNull()
         ?: constructors.single { it.hasAnnotation<Inject>() }
     return injectCall(constructor)
 }
+
+/** Special case of [injectCall] which constructs a class given its type. */
+@UseExperimental(ExperimentalStdlibApi::class)
+internal fun DKodein.injectConstructor(type: KType): Any =
+    injectConstructor(type.classifier as KClass<*>)

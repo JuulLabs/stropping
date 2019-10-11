@@ -51,7 +51,7 @@ class ReplacementHandle(
     componentClass: KClass<*>
 ) {
     /** Proxy dispatching android injector. */
-    val proxyInjector = mockk<DispatchingAndroidInjector<Any>> {
+    private val proxyInjector = mockk<DispatchingAndroidInjector<Any>> {
         every { inject(any()) } answers { call ->
             val receiver = checkNotNull(call.invocation.args.single())
             kodein.inject(receiver)

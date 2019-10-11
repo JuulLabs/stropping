@@ -10,9 +10,11 @@ import dagger.Module
 import dagger.Provides
 import org.kodein.di.Kodein
 import org.kodein.di.bindings.NoArgSimpleBindingKodein
+import org.kodein.di.conf.ConfigurableKodein
 import org.kodein.di.direct
 import org.kodein.di.generic.provider
 import org.kodein.di.generic.singleton
+import java.lang.reflect.Type
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.reflect.KAnnotatedElement
@@ -22,10 +24,11 @@ import kotlin.reflect.KType
 import kotlin.reflect.full.declaredMemberFunctions
 import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.full.valueParameters
+import kotlin.reflect.jvm.javaType
 
 @UseExperimental(ExperimentalStdlibApi::class)
 private fun Kodein.Builder.bind(
-    type: KType,
+    type: Type,
     element: KAnnotatedElement,
     build: NoArgSimpleBindingKodein<*>.() -> Any
 ) {
@@ -36,6 +39,13 @@ private fun Kodein.Builder.bind(
         bind with provider { this.build() }
     }
 }
+
+@UseExperimental(ExperimentalStdlibApi::class)
+private fun Kodein.Builder.bind(
+    type: KType,
+    element: KAnnotatedElement,
+    build: NoArgSimpleBindingKodein<*>.() -> Any
+) = bind(type.javaType, element, build)
 
 @UseExperimental(ExperimentalStdlibApi::class)
 private fun Kodein.Builder.importBindsFunction(function: KFunction<*>) {
@@ -74,9 +84,19 @@ internal fun Kodein.Builder.importDaggerComponent(componentClass: KClass<*>) {
     }
 }
 
-internal fun Kodein.inject(receiver: Any) {
+internal fun ConfigurableKodein.inject(receiver: Any) {
     receiver::class.java.fieldsWithAnnotation<Inject>()
         .forEach { field ->
-            field.forceSet(receiver, direct.Instance(createTypeToken(field.type)))
+            try {
+                field.forceSet(receiver, direct.Instance(createTypeToken(field.type)))
+            } catch (e: Kodein.NotFoundException) {
+                val clazz = e.key.type::class.java.getDeclaredField("trueType")
+                    .forceGet<Class<*>>(e.key.type)
+
+                addConfig {
+                    bind(clazz, clazz.kotlin) { injectConstructor(clazz.kotlin) }
+                }
+                inject(receiver)
+            }
         }
 }
