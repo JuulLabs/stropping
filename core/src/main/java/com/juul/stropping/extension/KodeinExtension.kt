@@ -88,18 +88,18 @@ internal fun Kodein.Builder.importDaggerComponent(componentClass: KClass<*>) {
 }
 
 internal fun ConfigurableKodein.inject(receiver: Any) {
-    receiver::class.java.fieldsWithAnnotation<Inject>()
-        .forEach { field ->
-            try {
-                field.forceSet(receiver, direct.Instance(createTypeToken(field.type)))
-            } catch (e: Kodein.NotFoundException) {
-                val clazz = e.key.type::class.java.getDeclaredField("trueType")
-                    .forceGet<Class<*>>(e.key.type)
-
-                addConfig {
-                    bind(clazz, clazz.kotlin) { injectConstructor(clazz.kotlin) }
-                }
-                inject(receiver)
+    for (field in receiver::class.java.fieldsWithAnnotation<Inject>()) {
+        fun injectField() = field.forceSet(receiver, direct.Instance(createTypeToken(field.type)))
+        try {
+            injectField()
+        } catch (e: Kodein.NotFoundException) {
+            // Assumes class is of kodein private type `ParameterizedTypeToken`
+            val clazz = e.key.type::class.java.getDeclaredField("trueType")
+                .forceGet<Class<*>>(e.key.type)
+            addConfig {
+                bind(clazz, clazz.kotlin) { injectConstructor(clazz.kotlin) }
             }
+            injectField()
         }
+    }
 }
