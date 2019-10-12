@@ -27,7 +27,6 @@ android {
 
     kotlinOptions {
         jvmTarget = versions.jvmTarget
-        freeCompilerArgs += "-Xuse-experimental=kotlin.Experimental"
     }
 }
 

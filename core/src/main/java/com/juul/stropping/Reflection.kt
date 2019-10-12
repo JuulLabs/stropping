@@ -1,6 +1,8 @@
 package com.juul.stropping
 
 import java.lang.reflect.Field
+import kotlin.reflect.KAnnotatedElement
+import kotlin.reflect.full.findAnnotation
 
 inline fun <reified A : Annotation> Class<*>.fieldsWithAnnotation(): Sequence<Field> {
     val properties = mutableListOf<Field>()
@@ -11,4 +13,8 @@ inline fun <reified A : Annotation> Class<*>.fieldsWithAnnotation(): Sequence<Fi
         clazz = clazz.superclass
     }
     return properties.asSequence()
+}
+
+inline fun <reified A: Annotation> KAnnotatedElement.hasAnnotation(): Boolean {
+    return findAnnotation<A>() != null
 }

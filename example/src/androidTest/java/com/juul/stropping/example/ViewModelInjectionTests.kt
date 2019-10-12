@@ -20,7 +20,7 @@ class ViewModelInjectionTests {
     fun useOriginalDependencyGraph() {
         Replacements.of<Component> { reset() }
         val scenario = ActivityScenario.launch(MainActivity::class.java)
-        Thread.sleep(5000)
+        Thread.sleep(1000)
         scenario.close()
     }
 
@@ -33,7 +33,7 @@ class ViewModelInjectionTests {
             }
         }
         val scenario = ActivityScenario.launch(MainActivity::class.java)
-        Thread.sleep(5000)
+        Thread.sleep(1000)
         scenario.close()
     }
 
@@ -46,7 +46,7 @@ class ViewModelInjectionTests {
             }
         }
         val scenario = ActivityScenario.launch(MainActivity::class.java)
-        Thread.sleep(5000)
+        Thread.sleep(1000)
         scenario.close()
     }
 
@@ -58,7 +58,7 @@ class ViewModelInjectionTests {
             overwrite("Injected user agent", named = USER_AGENT_NAME)
         }
         val scenario = ActivityScenario.launch(MainActivity::class.java)
-        Thread.sleep(5000)
+        Thread.sleep(1000)
         scenario.close()
     }
 }

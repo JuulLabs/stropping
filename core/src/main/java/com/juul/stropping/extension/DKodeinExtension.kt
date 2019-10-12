@@ -1,5 +1,6 @@
 package com.juul.stropping.extension
 
+import com.juul.stropping.hasAnnotation
 import com.juul.stropping.utility.createTypeToken
 import org.kodein.di.DKodein
 import javax.inject.Inject
@@ -8,7 +9,6 @@ import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.full.valueParameters
 
 /**
@@ -29,7 +29,6 @@ internal fun <R> DKodein.injectCall(callable: KCallable<R>, receiver: Any? = nul
 }
 
 /** Special case of [injectCall] which constructs a class given its type. */
-@UseExperimental(ExperimentalStdlibApi::class)
 internal fun <T : Any> DKodein.injectConstructor(kClass: KClass<T>): T {
     val constructors = kClass.constructors
     val constructor = constructors.singleOrNull()
@@ -38,6 +37,5 @@ internal fun <T : Any> DKodein.injectConstructor(kClass: KClass<T>): T {
 }
 
 /** Special case of [injectCall] which constructs a class given its type. */
-@UseExperimental(ExperimentalStdlibApi::class)
 internal fun DKodein.injectConstructor(type: KType): Any =
     injectConstructor(type.classifier as KClass<*>)

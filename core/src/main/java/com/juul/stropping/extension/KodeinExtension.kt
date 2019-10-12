@@ -1,6 +1,7 @@
 package com.juul.stropping.extension
 
 import com.juul.stropping.fieldsWithAnnotation
+import com.juul.stropping.hasAnnotation
 import com.juul.stropping.utility.createTypeToken
 import com.juul.stropping.utility.getModule
 import com.juul.stropping.utility.getModulesForComponentClass
@@ -24,11 +25,9 @@ import kotlin.reflect.KFunction
 import kotlin.reflect.KType
 import kotlin.reflect.full.declaredMemberFunctions
 import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.full.valueParameters
 import kotlin.reflect.jvm.javaType
 
-@UseExperimental(ExperimentalStdlibApi::class)
 private fun Kodein.Builder.bind(
     type: Type,
     element: KAnnotatedElement,
@@ -43,14 +42,12 @@ private fun Kodein.Builder.bind(
     }
 }
 
-@UseExperimental(ExperimentalStdlibApi::class)
 private fun Kodein.Builder.bind(
     type: KType,
     element: KAnnotatedElement,
     build: NoArgSimpleBindingKodein<*>.() -> Any
 ) = bind(type.javaType, element, build)
 
-@UseExperimental(ExperimentalStdlibApi::class)
 private fun Kodein.Builder.importBindsFunction(function: KFunction<*>) {
     require(function.hasAnnotation<Binds>())
     bind(type = function.returnType, element = function) {
@@ -59,7 +56,6 @@ private fun Kodein.Builder.importBindsFunction(function: KFunction<*>) {
     }
 }
 
-@UseExperimental(ExperimentalStdlibApi::class)
 private fun Kodein.Builder.importProvidesFunction(moduleClass: KClass<*>, function: KFunction<*>) {
     require(function.hasAnnotation<Provides>())
     bind(type = function.returnType, element = function) {
@@ -69,7 +65,6 @@ private fun Kodein.Builder.importProvidesFunction(moduleClass: KClass<*>, functi
 }
 
 /** Imports from either a [Component] or [Module], ignoring submodules & includes. */
-@UseExperimental(ExperimentalStdlibApi::class)
 private fun Kodein.Builder.importDaggerFunctions(kClass: KClass<*>) {
     for (function in kClass.declaredMemberFunctions) {
         when {
