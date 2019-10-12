@@ -1,11 +1,13 @@
 package com.juul.stropping
 
 import android.app.Application
+import android.content.Context
 import androidx.test.platform.app.InstrumentationRegistry
 import com.juul.stropping.extension.forceGet
 import com.juul.stropping.extension.forceSet
 import com.juul.stropping.extension.importDaggerComponent
 import com.juul.stropping.extension.injectIntoFields
+import com.juul.stropping.utility.createTypeToken
 import dagger.android.DaggerApplication
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasAndroidInjector
@@ -71,6 +73,9 @@ class ReplacementHandle(
         import(androidXModule(application))
         importDaggerComponent(kodein, componentClass)
         bind<DispatchingAndroidInjector<Any>>() with instance(proxyInjector)
+        bind<Context>() with instance(application)
+        bind<Application>() with instance(application)
+        Bind(createTypeToken(application::class.java)) with instance(application)
     }
 
     init {
