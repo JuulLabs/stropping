@@ -1,12 +1,21 @@
 package com.juul.stropping.utility
 
+import com.juul.stropping.hasAnnotation
 import dagger.Component
 import dagger.Module
 import dagger.Provides
+import javax.inject.Inject
+import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 
 private val modules = mutableMapOf<KClass<*>, Any>()
+
+internal fun <T : Any> getInjectableConstructor(kClass: KClass<T>): KCallable<T> {
+    val constructors = kClass.constructors
+    return constructors.singleOrNull()
+        ?: constructors.single { it.hasAnnotation<Inject>() }
+}
 
 /**
  * Uses reflection to create an instance of [kClass]. This allows us to call [Provides] functions.

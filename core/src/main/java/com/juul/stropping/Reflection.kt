@@ -17,14 +17,22 @@ inline fun <reified A : Annotation> Class<*>.fieldsWithAnnotation(): Sequence<Fi
     return properties.asSequence()
 }
 
+internal inline fun <reified A: Annotation> AnnotatedElement.findAnnotation(): A? {
+    return annotations.filterIsInstance<A>().firstOrNull()
+}
+
+internal inline fun <reified A: Annotation> AnnotatedElement.hasAnnotation(): Boolean {
+    return findAnnotation<A>() != null
+}
+
 internal inline fun <reified A: Annotation> KAnnotatedElement.hasAnnotation(): Boolean {
     return findAnnotation<A>() != null
 }
 
-internal fun getTag(element: KAnnotatedElement): Any? {
-    return element.findAnnotation<Named>()?.value
+internal fun getTag(element: KAnnotatedElement?): Any? {
+    return element?.findAnnotation<Named>()?.value
 }
 
-internal fun getTag(element: AnnotatedElement): Any? {
-    return element.annotations.filterIsInstance<Named>().firstOrNull()?.value
+internal fun getTag(element: AnnotatedElement?): Any? {
+    return element?.annotations?.filterIsInstance<Named>()?.firstOrNull()?.value
 }
