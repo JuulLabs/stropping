@@ -1,6 +1,10 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'maven-publish'
+
+def artifactId = 'core'
+def groupId = 'com.juul.stropping'
 
 android {
     compileSdkVersion versions.sdk.compile
@@ -10,7 +14,7 @@ android {
         minSdkVersion versions.sdk.min
         targetSdkVersion versions.sdk.target
         versionCode 1
-        versionName "1.0"
+        versionName versions.stropping
         consumerProguardFiles 'consumer-rules.pro'
     }
 
@@ -27,6 +31,29 @@ android {
     }
 }
 
+project.afterEvaluate {
+    publishing {
+        publications {
+            library(MavenPublication) {
+                setGroupId groupId
+                setArtifactId artifactId
+                version android.defaultConfig.versionName
+                artifact bundleReleaseAar
+
+                pom.withXml {
+                    def dependencies = asNode().appendNode('dependencies')
+                    configurations.implementation.allDependencies.each { dependency ->
+                        addDependency(dependencies, 'runtime', dependency)
+                    }
+                    configurations.api.allDependencies.each { Dependency dependency ->
+                        addDependency(dependencies, 'compile', dependency)
+                    }
+                }
+            }
+        }
+    }
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation deps.androidx.appcompat
@@ -35,7 +62,6 @@ dependencies {
     implementation deps.androidx.test.runner
     implementation deps.dagger.android.base
     implementation deps.dagger.android.support
-    implementation deps.javassist
     implementation deps.kodein.android
     implementation deps.kodein.conf
     implementation deps.kodein.jvm

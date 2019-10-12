@@ -26,15 +26,20 @@ object Replacements {
     private val componentClassToReplacementHandle = mutableMapOf<KClass<*>, ReplacementHandle>()
 
     inline fun <reified T : Any> of(
+        resetConfiguration: Boolean = true,
         noinline configureReplacements: ReplacementHandle.() -> Unit
-    ) = of(T::class, configureReplacements)
+    ) = of(T::class, resetConfiguration, configureReplacements)
 
     fun <T : Any> of(
         componentClass: KClass<T>,
+        resetConfiguration: Boolean = true,
         configureReplacements: ReplacementHandle.() -> Unit
     ) {
         val handle = componentClassToReplacementHandle.getOrPut(componentClass) {
             createReplacementHandle(componentClass)
+        }
+        if (resetConfiguration) {
+            handle.reset()
         }
         configureReplacements(handle)
     }

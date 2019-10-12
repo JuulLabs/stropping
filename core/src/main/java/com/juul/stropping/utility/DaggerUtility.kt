@@ -3,7 +3,6 @@ package com.juul.stropping.utility
 import dagger.Component
 import dagger.Module
 import dagger.Provides
-import javassist.util.proxy.ProxyFactory
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 
@@ -17,10 +16,7 @@ private val modules = mutableMapOf<KClass<*>, Any>()
  */
 internal fun getModule(kClass: KClass<*>): Any = modules.getOrPut(kClass) {
     if (kClass.isAbstract) {
-        ProxyFactory().apply {
-            superclass = kClass.java
-            setFilter { method -> !method.isAnnotationPresent(Provides::class.java) }
-        }.createClass().newInstance()
+        TODO()
     } else {
         kClass.java.newInstance()
     }
