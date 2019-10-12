@@ -136,18 +136,26 @@ internal fun ConfigurableKodein.injectIntoFields(receiver: Any) {
     }
 }
 
+// TODO: Make this less of a god function
 private fun <T : Any> ConfigurableKodein.getInstanceOf(typeToken: TypeToken<T>, tag: Any?): T {
     val type = typeToken::class.java.getDeclaredField("trueType")
         .forceGet<Type>(typeToken)
     Log.d("Stropping", "Attemping to get instance of ${type.typeName} (tag=$tag)")
-    if (type is ParameterizedType && type.rawType == Class.forName("dagger.Lazy")) {
-        Log.d("Stropping", "Found dagger.Lazy -- deferring injection")
-        val paramType = type.actualTypeArguments.first()
-        @Suppress("UNCHECKED_CAST")
-        return dagger.Lazy<Any> {
-            Log.d("Stropping", "Lazy.get() for ${paramType.typeName} (tag=$tag)")
-            getInstanceOf(createTypeToken(paramType), tag)
-        } as T
+    if (type is ParameterizedType) {
+        if (type.rawType == Class.forName("dagger.Lazy")
+            || type.rawType == Class.forName("javax.inject.Provider")
+        ) {
+            Log.d("Stropping", "Found dagger.Lazy or javax.inject.Provider -- deferring injection")
+            val paramType = type.actualTypeArguments.first()
+            @Suppress("UNCHECKED_CAST")
+            return object : dagger.Lazy<Any>, javax.inject.Provider<Any> {
+                override fun get(): Any {
+                    Log.d("Stropping", "Lazy/Provider get() for ${paramType.typeName} (tag=$tag)")
+                    return getInstanceOf(createTypeToken(paramType), tag)
+                }
+            } as T
+        }
+        // TODO: Handle other param types.
     }
     val instance = try {
         direct.Instance(typeToken, tag)
