@@ -26,14 +26,11 @@ private fun Kodein.Builder.bindSingle(
     build: NoArgSimpleBindingKodein<*>.() -> Any
 ) {
     val bindingType = if (isSingleton) "singleton" else "provider"
+    Log.d("Stropping", "Binding $bindingType for ${typeToken.simpleDispString()} (tag=$tag) with $buildName")
     val binding = when (isSingleton) {
         true -> singleton { build() }
         false -> provider { build() }
     }
-    Log.d(
-        "Stropping",
-        "Binding $bindingType for ${typeToken.simpleDispString()} (tag=$tag) with $buildName"
-    )
     Bind(typeToken, tag) with binding
 }
 
@@ -45,11 +42,24 @@ private fun Kodein.Builder.bindIntoSet(
     build: NoArgSimpleBindingKodein<*>.() -> Any
 ) {
     val bindingType = if (isSingleton) "singleton" else "provider"
+    Log.d("Stropping", "Binding $bindingType into Set<${typeToken.simpleDispString()}> (tag=$tag) with $buildName")
     val binding = when (isSingleton) {
         true -> singleton { build() }
         false -> provider { build() }
     }
-    TODO("Binding @IntoMap not yet supported")
+
+    val setType = Set::class.java.parameterize(typeToken.jvmType)
+    @Suppress("UNCHECKED_CAST")
+    val setTypeToken = createTypeToken(setType) as TypeToken<Set<Any>>
+
+    try {
+        Bind(typeToken, tag).InSet(setTypeToken) with binding
+    } catch (e: IllegalStateException) {
+        // Set up the Set<T>, then retry
+        Log.d("Stropping", "Failed to bind. Creating Set<...> bindings.")
+        Bind(tag) from SetBinding(AnyToken, typeToken, setTypeToken)
+        Bind(typeToken, tag).InSet(setTypeToken) with binding
+    }
 }
 
 private fun Kodein.Builder.bindIntoMap(
@@ -61,11 +71,11 @@ private fun Kodein.Builder.bindIntoMap(
     build: NoArgSimpleBindingKodein<*>.() -> Any
 ) {
     val bindingType = if (isSingleton) "singleton" else "provider"
+    Log.d("Stropping", "Binding $bindingType into Map<${intoMap.keyType}, ${typeToken.simpleDispString()}> (tag=$tag) with $buildName")
     val binding = when (isSingleton) {
         true -> singleton { intoMap.keyValue to build() }
         false -> provider { intoMap.keyValue to build() }
     }
-    Log.d("Stropping", "Binding $bindingType into Map<${intoMap.keyType}, ${typeToken.simpleDispString()}> (tag=$tag) with $buildName")
 
     val pairType = Pair::class.java.parameterize(intoMap.keyType.javaType, typeToken.jvmType)
     val setType = Set::class.java.parameterize(pairType)
@@ -80,11 +90,10 @@ private fun Kodein.Builder.bindIntoMap(
     val indirectMapTypeToken = createTypeToken(indirectMapType)
 
     try {
-        // Try to add a single binding into the set
         Bind(pairTypeToken, tag).InSet(setTypeToken) with binding
     } catch (e: IllegalStateException) {
+        // Set up the Set<Pair<K, T>>, Map<K, T>, and Map<K, Provider<T>>, then retry
         Log.d("Stropping", "Failed to bind. Creating Set<...> and Map<...> bindings.")
-        // If that fails, set up the Set<Pair<K, T>>, Map<K, T>, and Map<K, Provider<T>>
         Bind(tag) from SetBinding(AnyToken, pairTypeToken, setTypeToken)
         Bind(mapTypeToken, tag) with provider {
             @Suppress("UNCHECKED_CAST")
