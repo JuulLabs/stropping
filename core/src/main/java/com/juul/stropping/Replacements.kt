@@ -3,11 +3,6 @@ package com.juul.stropping
 import android.app.Application
 import android.content.Context
 import androidx.test.platform.app.InstrumentationRegistry
-import com.juul.stropping.extension.forceGet
-import com.juul.stropping.extension.forceSet
-import com.juul.stropping.extension.importDaggerComponent
-import com.juul.stropping.extension.injectIntoFields
-import com.juul.stropping.utility.createTypeToken
 import dagger.android.DaggerApplication
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasAndroidInjector
@@ -101,8 +96,11 @@ class ReplacementHandle(
         value: T,
         named: String? = null
     ) {
-        val kodein = this::class.java.getDeclaredField("kodein")
-            .forceGet<ConfigurableKodein>(this)
+        // Don't use `forceGet` even though it would be perfect, because visibility.
+        val kodeinField = this::class.java.getDeclaredField("kodein")
+        kodeinField.isAccessible = true
+        val kodein = kodeinField.get(this) as ConfigurableKodein
+        kodeinField.isAccessible = false
         kodein.addConfig {
             bind<T>(overrides = true, tag = named) with instance(value)
         }

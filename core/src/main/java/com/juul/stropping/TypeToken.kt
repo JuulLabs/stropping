@@ -1,4 +1,4 @@
-package com.juul.stropping.utility
+package com.juul.stropping
 
 import org.kodein.di.TypeToken
 import java.lang.reflect.Type
@@ -23,6 +23,7 @@ private val typeTokenConstructor: KFunction<TypeToken<Any>> by lazy {
 internal fun createTypeToken(type: Type): TypeToken<Any> {
     return typeTokenConstructor.call(type)
 }
+
 /** Create a [TypeToken] for the given [type]. */
 internal fun createTypeToken(type: KType): TypeToken<Any> {
     return typeTokenConstructor.call(type.javaType)
