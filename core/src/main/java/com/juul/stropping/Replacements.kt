@@ -67,7 +67,7 @@ class ReplacementHandle(
     private val applicationGraph = Kodein(allowSilentOverride = true) {
         import(androidXModule(application))
         importDaggerComponent(kodein, componentClass)
-        bind<DispatchingAndroidInjector<Any>>() with instance(proxyInjector)
+        bind<DispatchingAndroidInjector<*>>() with instance(proxyInjector)
         bind<Context>() with instance(application)
         bind<Application>() with instance(application)
         Bind(createTypeToken(application::class.java)) with instance(application)

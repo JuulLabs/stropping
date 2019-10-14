@@ -39,16 +39,19 @@ private fun <T : Any> ConfigurableKodein.getInstanceOf(typeToken: TypeToken<T>, 
     val instance = try {
         direct.Instance(typeToken, tag)
     } catch (e: Kodein.NotFoundException) {
-        Log.d(
-            "Stropping",
-            "Failed to inject ${type.typeName} (tag=$tag). Attempting automatic bind."
-        )
-        val annotation = type as? AnnotatedElement
-        addConfig {
-            val builderName = "constructor of ${type.typeName}"
-            bind(type, annotation, builderName) { constructWithInjectedParameters(type) }
+        Log.d("Stropping", "Failed to inject ${type.typeName} (tag=$tag). Attempting automatic bind.")
+        if (type is ParameterizedType) {
+            throw UnsupportedOperationException("Cannot automatically bind parameterized type.", e)
+        } else {
+            val annotation = type as? AnnotatedElement
+            addConfig {
+                val builderName = "constructor of ${type.typeName}"
+                bind(type, annotation, builderName, Multibindings.Single) {
+                    constructWithInjectedParameters(type)
+                }
+            }
+            direct.Instance(typeToken, tag)
         }
-        direct.Instance(typeToken, tag)
     }
     Log.d("Stropping", "Got $instance")
     return instance

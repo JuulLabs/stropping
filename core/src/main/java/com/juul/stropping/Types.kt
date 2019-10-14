@@ -1,6 +1,7 @@
 package com.juul.stropping
 
 import org.kodein.di.TypeToken
+import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import kotlin.reflect.KFunction
 import kotlin.reflect.KType
@@ -27,4 +28,27 @@ internal fun createTypeToken(type: Type): TypeToken<Any> {
 /** Create a [TypeToken] for the given [type]. */
 internal fun createTypeToken(type: KType): TypeToken<Any> {
     return typeTokenConstructor.call(type.javaType)
+}
+
+/** Creates a [ParameterizedType] from this [Class]. */
+internal fun Class<*>.parameterize(
+    vararg params: Type
+): ParameterizedType {
+    require(params.size == this.typeParameters.size)
+    return object : ParameterizedType {
+        override fun getRawType(): Type = this@parameterize
+        override fun getOwnerType(): Type? = null
+        override fun getActualTypeArguments(): Array<out Type> = params
+
+        override fun equals(other: Any?): Boolean {
+            @Suppress("NAME_SHADOWING")
+            val other = other as? ParameterizedType ?: return false
+            return rawType == other.rawType
+                && actualTypeArguments.contentEquals(other.actualTypeArguments)
+        }
+
+        override fun hashCode(): Int {
+            return rawType.hashCode().xor(actualTypeArguments.contentHashCode())
+        }
+    }
 }

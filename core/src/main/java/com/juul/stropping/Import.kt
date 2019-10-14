@@ -35,29 +35,15 @@ internal fun Kodein.Builder.importDaggerComponent(
 /** Imports from either a [Component] or [Module], ignoring submodules & includes. */
 private fun Kodein.Builder.importDaggerFunctions(
     configurable: ConfigurableKodein,
-    kClass: KClass<*>
+    moduleClass: KClass<*>
 ) {
     @Suppress("UNCHECKED_CAST")
-    val functions = kClass.declaredMemberFunctions.map { it as KFunction<Any> }
+    val functions = moduleClass.declaredMemberFunctions
+        .map { it as KFunction<Any> }
     for (function in functions) {
-        val builderName = "${kClass.simpleName}.${function.name}"
-        when {
-            function.hasAnnotation<Binds>() -> {
-                bind(function.returnType, function, builderName) {
-                    val implementationType = function.valueParameters.single().type
-                    configurable.constructWithInjectedParameters(implementationType)
-                }
-            }
-            function.hasAnnotation<Provides>() -> {
-                bind(function.returnType, function, builderName) {
-                    val receiver = providerModules.getOrPut(kClass) { kClass.java.newInstance() }
-                    configurable.callWithInjectedParameters(function, receiver)
-                }
-            }
-        }
+        importDaggerFunction(configurable, moduleClass, function)
     }
 }
-
 
 /**
  * Returns a list of all classes in the [Component] annotation's [Component.modules].
@@ -85,4 +71,29 @@ private fun getModulesForComponentClass(
     }
 
     return component.modules.flatMap(::expandModules)
+}
+
+private fun Kodein.Builder.importDaggerFunction(
+    configurable: ConfigurableKodein,
+    moduleClass: KClass<*>,
+    function: KFunction<Any>
+) {
+    val builderName = "${moduleClass.simpleName}.${function.name}"
+    val multibindings = Multibindings.fromAnnotations(function)
+    when {
+        function.hasAnnotation<Binds>() -> {
+            bind(function.returnType, function, builderName, multibindings) {
+                val implementationType = function.valueParameters.single().type
+                configurable.constructWithInjectedParameters(implementationType)
+            }
+        }
+        function.hasAnnotation<Provides>() -> {
+            bind(function.returnType, function, builderName, multibindings) {
+                val receiver = providerModules.getOrPut(moduleClass) {
+                    moduleClass.java.newInstance()
+                }
+                configurable.callWithInjectedParameters(function, receiver)
+            }
+        }
+    }
 }
