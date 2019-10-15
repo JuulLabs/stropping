@@ -1,0 +1,72 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'maven-publish'
+
+def artifactId = 'mockk'
+def groupId = 'com.juul.stropping'
+
+android {
+    compileSdkVersion versions.sdk.compile
+    buildToolsVersion versions.buildTools
+
+    defaultConfig {
+        minSdkVersion versions.sdk.min
+        targetSdkVersion versions.sdk.target
+        versionCode 1
+        versionName versions.stropping
+        consumerProguardFiles 'consumer-rules.pro'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    kotlinOptions {
+        jvmTarget = versions.jvmTarget
+    }
+}
+
+project.afterEvaluate {
+    publishing {
+        publications {
+            library(MavenPublication) {
+                setGroupId groupId
+                setArtifactId artifactId
+                version android.defaultConfig.versionName
+                artifact bundleReleaseAar
+
+                pom.withXml {
+                    def dependencies = asNode().appendNode('dependencies')
+                    configurations.implementation.allDependencies.each { dependency ->
+                        addDependency(dependencies, 'runtime', dependency)
+                    }
+                    configurations.api.allDependencies.each { Dependency dependency ->
+                        addDependency(dependencies, 'compile', dependency)
+                    }
+                    addDependency(dependencies, 'compile', 'com.juul.stropping', 'core', versions.stropping)
+                }
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation deps.androidx.appcompat
+    implementation deps.androidx.core
+    implementation deps.androidx.test.ext.junit
+    implementation deps.androidx.test.runner
+    implementation deps.dagger.android.base
+    implementation deps.dagger.android.support
+    implementation deps.kotlin.stdlib
+    implementation deps.kotlin.reflect
+    api deps.mockk.android
+    api deps.stropping.core
+
+    testImplementation deps.junit
+    testImplementation deps.kotlin.test.junit
+}

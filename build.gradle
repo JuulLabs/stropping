@@ -1,17 +1,74 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.3.50'
+    ext.versions = [
+            buildTools: '29.0.2',
+            dagger    : '2.24',
+            jvmTarget : '1.8',
+            kodein    : '6.3.3',
+            kotlin    : '1.3.41',
+            mockk     : '1.9.2',
+            sdk       : [
+                    compile: 29,
+                    min    : 21,
+                    target : 29,
+            ],
+            stropping : '0.0.1',
+    ]
+    ext.deps = [
+            androidx : [
+                    appcompat       : 'androidx.appcompat:appcompat:1.0.2',
+                    constraintlayout: 'androidx.constraintlayout:constraintlayout:1.1.3',
+                    core            : 'androidx.core:core-ktx:1.0.2',
+                    test            : [
+                            espresso: [
+                                    core: 'androidx.test.espresso:espresso-core:3.2.0',
+                            ],
+                            ext     : [
+                                    junit: 'androidx.test.ext:junit:1.1.1',
+                            ],
+                            runner  : 'androidx.test:runner:1.2.0',
+                    ],
+                    lifecycle       : 'androidx.lifecycle:lifecycle-extensions:2.1.0'
+            ],
+            dagger   : [
+                    android : [
+                            base     : "com.google.dagger:dagger-android:$versions.dagger",
+                            support  : "com.google.dagger:dagger-android-support:$versions.dagger",
+                            processor: "com.google.dagger:dagger-android-processor:$versions.dagger",
+                    ],
+                    base    : "com.google.dagger:dagger:$versions.dagger",
+                    compiler: "com.google.dagger:dagger-compiler:$versions.dagger",
+            ],
+            junit    : 'junit:junit:4.12',
+            kodein   : [
+                    android: "org.kodein.di:kodein-di-framework-android-x:$versions.kodein",
+                    conf   : "org.kodein.di:kodein-di-conf-jvm:$versions.kodein",
+                    jvm    : "org.kodein.di:kodein-di-generic-jvm:$versions.kodein",
+            ],
+            kotlin   : [
+                    reflect: "org.jetbrains.kotlin:kotlin-reflect:1.3.0",
+                    stdlib : "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$versions.kotlin",
+                    test   : [
+                            junit: "org.jetbrains.kotlin:kotlin-test-junit:$versions.kotlin",
+                    ],
+            ],
+            mockk    : [
+                    android: "io.mockk:mockk-android:$versions.mockk"
+            ],
+            stropping: [
+                    core : project(":core"),
+                    mockk: project(":mockk")
+            ],
+    ]
     repositories {
         google()
         jcenter()
-        
+
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.0'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+        classpath 'com.android.tools.build:gradle:3.5.1'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
     }
 }
 
@@ -19,10 +76,46 @@ allprojects {
     repositories {
         google()
         jcenter()
-        
     }
 }
 
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+private static String softVersion(String version) {
+    return version
+    def parts = version.split('\\.')
+    def major = parts[0].toInteger()
+    def minor = parts[1]
+    if (parts.length == 3) {
+        def patch = parts[2]
+        return "[$major.$minor.$patch,${major + 1}.0.0)"
+    } else {
+        return "[$major.$minor,${major + 1}.0)"
+    }
+}
+
+static def addDependency(node, scope, group, artifact, version) {
+    def dependencyNode = node.appendNode('dependency')
+    dependencyNode.appendNode('groupId', group)
+    dependencyNode.appendNode('artifactId', artifact)
+    dependencyNode.appendNode('version', softVersion(version))
+    dependencyNode.appendNode('scope', scope)
+}
+
+static def addDependency(node, scope, dependency) {
+    if (dependency.group == null) return
+    if (dependency.name == null) return
+    if (dependency.version == null) return
+    if (dependency.name == 'unspecified') return
+    if (dependency.version == 'unspecified') return
+    addDependency(
+            node,
+            scope,
+            dependency.group,
+            dependency.name,
+            dependency.version
+    )
+}
+
