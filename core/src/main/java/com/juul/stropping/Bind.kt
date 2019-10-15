@@ -16,7 +16,6 @@ import javax.inject.Provider
 import javax.inject.Singleton
 import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KType
-import kotlin.reflect.jvm.javaType
 
 private fun Kodein.Builder.bindSingle(
     typeToken: TypeToken<Any>,
@@ -62,7 +61,7 @@ private fun Kodein.Builder.bindIntoSet(
     }
 }
 
-private fun Kodein.Builder.bindIntoMap(
+internal fun Kodein.Builder.bindIntoMap(
     typeToken: TypeToken<Any>,
     tag: Any?,
     intoMap: Multibindings.ToMap,
@@ -77,11 +76,11 @@ private fun Kodein.Builder.bindIntoMap(
         false -> provider { intoMap.keyValue to build() }
     }
 
-    val pairType = Pair::class.java.parameterize(intoMap.keyType.javaType, typeToken.jvmType)
+    val pairType = Pair::class.java.parameterize(intoMap.keyType, typeToken.jvmType)
     val setType = Set::class.java.parameterize(pairType)
-    val directMapType = Map::class.java.parameterize(intoMap.keyType.javaType, typeToken.jvmType)
+    val directMapType = Map::class.java.parameterize(intoMap.keyType, typeToken.jvmType)
     val providerType = Provider::class.java.parameterize(typeToken.jvmType)
-    val indirectMapType = Map::class.java.parameterize(intoMap.keyType.javaType, providerType)
+    val indirectMapType = Map::class.java.parameterize(intoMap.keyType, providerType)
 
     val pairTypeToken = createTypeToken(pairType)
     @Suppress("UNCHECKED_CAST")

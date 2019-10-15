@@ -8,6 +8,9 @@ import kotlin.reflect.KType
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.javaType
 
+/** Internal type used to implement [javaTypeOf]. Otherwise useless. */
+interface TypeHandle<T>
+
 /**
  * Constructor for a private class. Allows creating type-safe implementations of [TypeToken].
  *
@@ -21,12 +24,12 @@ private val typeTokenConstructor: KFunction<TypeToken<Any>> by lazy {
 }
 
 /** Create a [TypeToken] for the given [type]. */
-internal fun createTypeToken(type: Type): TypeToken<Any> {
+fun createTypeToken(type: Type): TypeToken<Any> {
     return typeTokenConstructor.call(type)
 }
 
 /** Create a [TypeToken] for the given [type]. */
-internal fun createTypeToken(type: KType): TypeToken<Any> {
+fun createTypeToken(type: KType): TypeToken<Any> {
     return typeTokenConstructor.call(type.javaType)
 }
 
@@ -51,4 +54,10 @@ internal fun Class<*>.parameterize(
             return rawType.hashCode().xor(actualTypeArguments.contentHashCode())
         }
     }
+}
+
+inline fun <reified T : Any> javaTypeOf(): Type {
+    val handle = object : TypeHandle<T> {}
+    val supertype = handle::class.supertypes.first().javaType as ParameterizedType
+    return supertype.actualTypeArguments.first()
 }

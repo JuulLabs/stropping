@@ -13,3 +13,19 @@ inline fun <reified T : Any> ReplacementHandle.overwriteWithMockK(
     this.overwrite(mock, named)
     return mock
 }
+
+inline fun <reified Key : Any, reified MapValue : Any, reified MockValue : MapValue> ReplacementHandle.addMockKIntoMap(
+    key: Key,
+    named: String? = null,
+    relaxed: Boolean = false,
+    relaxUnitFun: Boolean = false,
+    configuration: MockValue.() -> Unit = {}
+): MapValue {
+    val mock = mockk(
+        relaxed = relaxed,
+        relaxUnitFun = relaxUnitFun,
+        block = configuration
+    )
+    this.addIntoMap<Key, MapValue>(key, mock, named)
+    return mock
+}

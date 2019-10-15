@@ -13,6 +13,7 @@ import org.kodein.di.android.x.androidXModule
 import org.kodein.di.conf.ConfigurableKodein
 import org.kodein.di.generic.bind
 import org.kodein.di.generic.instance
+import java.lang.reflect.Type
 import kotlin.reflect.KClass
 
 object Replacements {
@@ -103,6 +104,27 @@ class ReplacementHandle(
         kodeinField.isAccessible = false
         kodein.addConfig {
             bind<T>(overrides = true, tag = named) with instance(value)
+        }
+    }
+
+    inline fun <reified K : Any, reified V : Any> addIntoMap(
+        key: K,
+        value: V,
+        named: String? = null
+    ) = addIntoMap(javaTypeOf<K>(), key, javaTypeOf<V>(), value, named)
+
+    fun addIntoMap(
+        keyType: Type,
+        key: Any,
+        valueType: Type,
+        value: Any,
+        tag: Any?
+    ) {
+        val multibindings = Multibindings.ToMap(keyType, key)
+        kodein.addConfig {
+            bindIntoMap(createTypeToken(valueType), tag, multibindings, false, "addIntoMap") {
+                value
+            }
         }
     }
 }

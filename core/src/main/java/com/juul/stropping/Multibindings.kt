@@ -4,15 +4,16 @@ import dagger.MapKey
 import dagger.multibindings.IntoMap
 import dagger.multibindings.IntoSet
 import java.lang.reflect.AnnotatedElement
+import java.lang.reflect.Type
 import kotlin.reflect.KAnnotatedElement
-import kotlin.reflect.KType
 import kotlin.reflect.full.primaryConstructor
+import kotlin.reflect.jvm.javaType
 
 internal sealed class Multibindings {
     object Single : Multibindings()
     object ToSet : Multibindings()
     class ToMap(
-        val keyType: KType,
+        val keyType: Type,
         val keyValue: Any
     ) : Multibindings()
 
@@ -26,7 +27,7 @@ internal sealed class Multibindings {
             val parameter = keyAnnotation.annotationClass
                 .primaryConstructor!!
                 .parameters.first()
-            val keyType = parameter.type
+            val keyType = parameter.type.javaType
             val keyValue = keyAnnotation.annotationClass.java.let { annotationClass ->
                 try {
                     annotationClass.getMethod(parameter.name!!)
