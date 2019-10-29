@@ -1,0 +1,6 @@
+rootProject.name = 'Stropping'
+include ':common',
+        ':core',
+        ':example',
+        ':kodein'
+
