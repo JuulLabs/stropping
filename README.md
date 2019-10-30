@@ -44,7 +44,17 @@ Additionally, we create a mocked instance of the `final` class `DispatchingAndro
 
 ## Gradle
 
-Most consumers will want to use the [`kodein`] library:
+In your project-level `build.gradle`, you will need to make sure that jitpack is enabled as a repository:
+
+```gradle
+allprojects {
+    repositories {
+        maven { url "https://jitpack.io" }
+    }
+}
+```
+
+Then, in your app `build.gradle`, most consumers will want to use the [`kodein`] library:
 
 ```gradle
 dependencies {
@@ -56,7 +66,7 @@ To use the [`core`] library instead, for your own Dagger-reflection needs:
 
 ```gradle
 dependencies {
-    implementation "com.github.juullabs-oss.stropping:core:0.0.1"
+    androidTestImplementation "com.github.juullabs-oss.stropping:core:0.0.1"
 }
 ```
 
