@@ -9,6 +9,7 @@ import com.juul.stropping.example.api.ProvidedApi
 import com.juul.stropping.example.api.USER_AGENT_NAME
 import com.juul.stropping.kodein.Replacements
 import com.juul.stropping.kodein.overwriteWithMockK
+import com.juul.stropping.kodein.overwriteWithSpyK
 import io.mockk.every
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,6 +42,19 @@ class ViewModelInjectionTests {
         Replacements.of<Component> {
             overwriteWithMockK<ProvidedApi> {
                 every { getValue() } returns "Test From Kodein-injected MockK"
+            }
+        }
+        val scenario = ActivityScenario.launch(MainActivity::class.java)
+        Thread.sleep(1000)
+        scenario.close()
+    }
+
+    @Test
+    fun replaceWithSpyk() {
+        Replacements.of<Component> {
+            overwriteWithSpyK<ProvidedApi> {
+                val original = getValue()
+                every { getValue() } returns original.toUpperCase()
             }
         }
         val scenario = ActivityScenario.launch(MainActivity::class.java)
