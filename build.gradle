@@ -17,7 +17,7 @@ buildscript {
                     min    : 21,
                     target : 29,
             ],
-            stropping : '0.0.1',
+            stropping : '0.0.2',
     ]
     ext.deps = [
             androidx : [

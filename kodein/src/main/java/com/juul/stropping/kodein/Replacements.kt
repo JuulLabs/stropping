@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.test.platform.app.InstrumentationRegistry
 import com.juul.stropping.InjectableInstance
 import com.juul.stropping.Multibindings
+import com.juul.stropping.QualifiedType
 import com.juul.stropping.ValueProvisioner
 import com.juul.stropping.common.forceSet
 import com.juul.stropping.createStringTag
@@ -130,6 +131,17 @@ class ReplacementHandle(
         }
     }
 
+    /** Provides a value from the _current_ dependency graph. */
+    inline fun <reified T : Any> provide(
+        named: String? = null
+    ): T = provide(javaTypeOf<T>(), named)
+
+    /** Provides a value from the _current_ dependency graph. [T] _must_ be assignable from [type]. */
+    fun <T : Any> provide(
+        type: Type,
+        named: String? = null
+    ): T = kodein.getInstanceOf(QualifiedType(type, listOfNotNull(named)))
+
     /**
      * Replaces the provision method in Dagger for type [V] with either no qualifiers, or a [Named]
      * qualifier, with one the provides the given [value] and is annotated with [IntoMap]. The map
@@ -143,7 +155,6 @@ class ReplacementHandle(
         javaTypeOf<K>(), key,
         javaTypeOf<V>(), value, named
     )
-
 
     /** Implementation detail of `addIntoMap<K, V>`. You likely don't want to call this directly. */
     fun addIntoMap(

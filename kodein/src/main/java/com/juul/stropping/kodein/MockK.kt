@@ -1,8 +1,9 @@
 package com.juul.stropping.kodein
 
 import io.mockk.mockk
+import io.mockk.spyk
 
-/** Sugar for calling [ReplacementHandle.overwrite] with a new `mockk`. Returns the mock. */
+/** Sugar for calling [ReplacementHandle.overwrite] with a new [mockk]. Returns the mock. */
 inline fun <reified T : Any> ReplacementHandle.overwriteWithMockK(
     named: String? = null,
     relaxed: Boolean = false,
@@ -12,6 +13,16 @@ inline fun <reified T : Any> ReplacementHandle.overwriteWithMockK(
     val mock = mockk(relaxed = relaxed, relaxUnitFun = relaxUnitFun, block = configuration)
     this.overwrite(mock, named)
     return mock
+}
+
+/** Sugar for creating a [spyk] from the value currently [ReplacementHandle.provide]d, then calling [ReplacementHandle.overwrite]. */
+inline fun <reified T : Any> ReplacementHandle.overwriteWithSpyK(
+    named: String? = null,
+    configuration: T.() -> Unit = {}
+): T {
+    val spy = spyk(provide<T>(named), block = configuration)
+    this.overwrite(spy, named)
+    return spy
 }
 
 /** Sugar for calling [ReplacementHandle.addIntoMap] with a new `mockk`. Returns the mock. */
