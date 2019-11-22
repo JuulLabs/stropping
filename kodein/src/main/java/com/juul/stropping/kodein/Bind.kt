@@ -3,6 +3,7 @@ package com.juul.stropping.kodein
 import com.juul.stropping.BindsMethodProvisioner
 import com.juul.stropping.InjectableConstructor
 import com.juul.stropping.InjectableMethod
+import com.juul.stropping.InjectableStaticMethod
 import com.juul.stropping.Multibindings
 import com.juul.stropping.ProvidesMethodProvisioner
 import com.juul.stropping.Provisioner
@@ -112,9 +113,13 @@ internal fun Kodein.Builder.bind(
             configurable.inject(checkNotNull(constructor))
         }
         is ProvidesMethodProvisioner -> {
-            val moduleConstructor = InjectableConstructor.fromClass(provisioner.declaringClass)
-            val module = configurable.inject(checkNotNull(moduleConstructor))
-            configurable.inject(InjectableMethod(module, provisioner.method))
+            if (provisioner.isStatic) {
+                configurable.inject(InjectableStaticMethod(provisioner.method))
+            } else {
+                val moduleConstructor = InjectableConstructor.fromClass(provisioner.declaringClass)
+                val module = configurable.inject(checkNotNull(moduleConstructor))
+                configurable.inject(InjectableMethod(module, provisioner.method))
+            }
         }
         is ValueProvisioner -> provisioner.value
     }

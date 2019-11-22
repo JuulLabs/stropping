@@ -7,6 +7,7 @@ import com.juul.stropping.common.hasAnnotation
 import java.lang.reflect.Constructor
 import java.lang.reflect.Field
 import java.lang.reflect.Method
+import java.lang.reflect.Modifier
 import javax.inject.Inject
 import kotlin.reflect.KFunction
 import kotlin.reflect.jvm.javaMethod
@@ -105,6 +106,7 @@ class InjectableMethod<T>(
 
     init {
         require(method.declaringClass == receiver::class.java)
+        require(!Modifier.isStatic(method.modifiers))
     }
 
     override val parameters: List<QualifiedType> by lazy {
@@ -118,3 +120,25 @@ class InjectableMethod<T>(
     }
 }
 
+/**
+ * Injectable for static methods with no receiver.
+ *
+ * @constructor Create an instance of the injectable static method.
+ */
+class InjectableStaticMethod<T>(
+    private val method: Method
+) : Injectable<T>() {
+    init {
+        require(Modifier.isStatic(method.modifiers))
+    }
+
+    override val parameters: List<QualifiedType> by lazy {
+        (method.genericParameterTypes zip method.parameterAnnotations)
+            .map { (type, annotations) -> QualifiedType(type, annotations.filterQualifiers()) }
+    }
+
+    override fun applyInjected(values: List<Any?>): T {
+        @Suppress("UNCHECKED_CAST")
+        return method.invoke(null, *values.toTypedArray()) as T
+    }
+}
