@@ -58,7 +58,7 @@ Then, in your app `build.gradle`, most consumers will want to use the [`kodein`]
 
 ```gradle
 dependencies {
-    androidTestImplementation "com.github.juullabs-oss.stropping:kodein:0.0.1"
+    androidTestImplementation "com.github.juullabs-oss.stropping:kodein:0.0.3"
 }
 ```
 
@@ -66,7 +66,7 @@ To use the [`core`] library instead, for your own Dagger-reflection needs:
 
 ```gradle
 dependencies {
-    androidTestImplementation "com.github.juullabs-oss.stropping:core:0.0.1"
+    androidTestImplementation "com.github.juullabs-oss.stropping:core:0.0.3"
 }
 ```
 

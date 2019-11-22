@@ -7,6 +7,7 @@ import com.juul.stropping.common.hasAnnotation
 import dagger.Binds
 import dagger.Provides
 import java.lang.reflect.Method
+import java.lang.reflect.Modifier
 import java.lang.reflect.Type
 import javax.inject.Qualifier
 import javax.inject.Singleton
@@ -107,4 +108,6 @@ class ProvidesMethodProvisioner(
     init {
         require(method.hasAnnotation<Provides>())
     }
+
+    val isStatic = Modifier.isStatic(method.modifiers)
 }
