@@ -35,16 +35,15 @@ fun <T> Field.forceGet(
     get(receiver) as T
 }
 
-inline fun <reified A : Annotation> Class<*>.fieldsWithAnnotation(): Sequence<Field> {
-    val properties = mutableListOf<Field>()
-    var clazz: Class<*>? = this
-    while (clazz != null) {
-        properties += clazz.declaredFields
-            .filter { it.isAnnotationPresent(A::class.java) }
-        clazz = clazz.superclass
+/** Gets all fields of this class and all its superclasses, including private fields. */
+val Class<*>.allFields: Sequence<Field>
+    get() = sequence {
+        var clazz: Class<*>? = this@allFields
+        while (clazz != null) {
+            yieldAll(clazz.declaredFields.asSequence())
+            clazz = clazz.superclass
+        }
     }
-    return properties.asSequence()
-}
 
 inline fun <reified A: Annotation> AnnotatedElement.findAnnotation(): A? {
     return annotations.filterIsInstance<A>().firstOrNull()

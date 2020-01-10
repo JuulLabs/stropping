@@ -2,6 +2,7 @@ package com.juul.stropping
 
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.VisibleForTesting.PROTECTED
+import com.juul.stropping.common.allFields
 import com.juul.stropping.common.forceSet
 import com.juul.stropping.common.hasAnnotation
 import java.lang.reflect.Constructor
@@ -77,7 +78,10 @@ class InjectableInstance(
 ) : Injectable<Unit>() {
 
     private val injectableFields: List<Field> by lazy {
-        instance::class.java.fields.filter { it.hasAnnotation<Inject>() }
+        instance::class.java.allFields
+            .filter { it.hasAnnotation<Inject>() }
+            .filter { !Modifier.isPrivate(it.modifiers) }
+            .toList()
     }
 
     override val parameters: List<QualifiedType> by lazy {
