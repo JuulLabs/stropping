@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/JuulLabs-OSS/stropping/branch/master/graph/badge.svg)](https://codecov.io/gh/JuulLabs-OSS/stropping)
+
 # Stropping
 
 **Stropping** performs reflection on Dagger.
