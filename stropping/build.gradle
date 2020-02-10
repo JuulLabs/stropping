@@ -1,0 +1,95 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'maven-publish'
+apply plugin: 'org.jetbrains.dokka'
+apply plugin: 'com.github.dcendents.android-maven'
+apply from: rootProject.file('gradle/jacoco-android.gradle')
+
+group=metadata.groupId
+
+android {
+    compileSdkVersion versions.sdk.compile
+    buildToolsVersion versions.buildTools
+
+    defaultConfig {
+        minSdkVersion versions.sdk.min
+        targetSdkVersion versions.sdk.target
+        versionCode 1
+        versionName versions.stropping
+        consumerProguardFiles 'consumer-rules.pro'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = versions.jvmTarget
+    }
+}
+
+project.afterEvaluate {
+    publishing {
+        publications {
+            library(MavenPublication) {
+                setGroupId metadata.groupId
+                setArtifactId 'kodein'
+                version android.defaultConfig.versionName
+                artifact bundleReleaseAar
+
+                pom.withXml {
+                    def dependencies = asNode().appendNode('dependencies')
+                    configurations.implementation.allDependencies.each { dependency ->
+                        addDependency(dependencies, 'runtime', dependency)
+                    }
+                    configurations.api.allDependencies.each { dependency ->
+                        addDependency(dependencies, 'compile', dependency)
+                    }
+                }
+            }
+        }
+    }
+}
+
+dokka {
+    configuration {
+        jdkVersion = 8
+        includes = ["package.md"]
+        externalDocumentationLink {
+            url = new URL("https://javaee.github.io/javaee-spec/javadocs/")
+            packageListUrl = new URL(url, "package-list")
+        }
+        externalDocumentationLink {
+            url = new URL("https://dagger.dev/api/$versions.dagger/")
+            packageListUrl = new URL(url, "package-list")
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation deps.androidx.appcompat
+    implementation deps.androidx.core
+    implementation deps.androidx.test.ext.junit
+    implementation deps.androidx.test.runner
+    implementation deps.dagger.android.base
+    implementation deps.dagger.android.support
+    implementation deps.kotlin.stdlib
+    implementation deps.kotlin.reflect
+    api deps.kodein.android
+    api deps.kodein.conf
+    api deps.kodein.jvm
+    api deps.mockk.android
+
+    testImplementation deps.junit
+    testImplementation deps.kotlin.test.junit
+}

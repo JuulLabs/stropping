@@ -3,8 +3,7 @@
 # Stropping
 
 **Stropping** performs reflection on Dagger.
-The [`core`] module uses reflection to find the list of provision functions.
-The [`kodein`] module converts those functions into a [Kodein] instance, and replaces a `DaggerApplication`'s `androidInjector` with it.
+It finds ways to replace a `DaggerApplication`'s `androidInjector` with one you can modify at runtime.
 
 This is useful when performing tests which have need to communicate with external services, such as when using [mockwebserver].
 The traditional approach for installing this in your application, as illustrated by [OkCupid's blogpost], is to create a subclass of your `Application` and launch it using a custom `AndroidJUnitRunner`.
@@ -56,19 +55,11 @@ allprojects {
 }
 ```
 
-Then, in your app `build.gradle`, most consumers will want to use the [`kodein`] library:
+Then, in your app `build.gradle`:
 
 ```gradle
 dependencies {
-    androidTestImplementation "com.github.juullabs-oss.stropping:kodein:0.0.3"
-}
-```
-
-To use the [`core`] library instead, for your own Dagger-reflection needs:
-
-```gradle
-dependencies {
-    androidTestImplementation "com.github.juullabs-oss.stropping:core:0.0.3"
+    androidTestImplementation "com.github.juullabs-oss.stropping:stropping:0.0.3"
 }
 ```
 
@@ -101,8 +92,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ```
 
-[`core`]: core
-[`kodein`]: kodein
-[Kodein]: https://kodein.org/di/
 [mockwebserver]: https://github.com/square/okhttp/tree/master/mockwebserver
 [OkCupid's Blogpost]: https://tech.okcupid.com/ui-tests-with-mockwebserver/

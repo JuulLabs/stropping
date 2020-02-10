@@ -1,6 +1,4 @@
 rootProject.name = 'Stropping'
-include ':common',
-        ':core',
-        ':example',
-        ':kodein'
+include ':stropping',
+        ':example'
 

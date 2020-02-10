@@ -60,11 +60,7 @@ buildscript {
             mockk    : [
                     android: "io.mockk:mockk-android:$versions.mockk",
             ],
-            stropping: [
-                    common: project(":common"),
-                    core  : project(":core"),
-                    kodein: project(":kodein"),
-            ],
+            stropping: project(":stropping")
     ]
     repositories {
         google()
@@ -119,17 +115,11 @@ static def addDependency(node, scope, dependency) {
 apply plugin: 'org.jetbrains.dokka'
 
 dokka {
-    subProjects = [
-            "core",
-            "kodein"
-    ]
+    subProjects = ["stropping"]
     configuration {
         reportUndocumented = true
         jdkVersion = 8
-        includes = [
-                "core/package.md",
-                "kodein/package.md",
-        ]
+        includes = ["stropping/package.md"]
         externalDocumentationLink {
             url = new URL("https://javaee.github.io/javaee-spec/javadocs/")
             packageListUrl = new URL(url, "package-list")
@@ -141,5 +131,4 @@ dokka {
     }
 }
 
-dokka.dependsOn ':core:assemble'
-dokka.dependsOn ':kodein:assemble'
+dokka.dependsOn ':stropping:assemble'

@@ -53,5 +53,5 @@ dependencies {
     androidTestImplementation deps.androidx.test.espresso.core
     androidTestImplementation deps.androidx.test.ext.junit
     androidTestImplementation deps.androidx.test.runner
-    androidTestImplementation deps.stropping.kodein
+    androidTestImplementation deps.stropping
 }

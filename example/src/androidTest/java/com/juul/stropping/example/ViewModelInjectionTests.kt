@@ -8,8 +8,8 @@ import com.juul.stropping.example.api.BoundApi
 import com.juul.stropping.example.api.ProvidedApi
 import com.juul.stropping.example.api.USER_AGENT_NAME
 import com.juul.stropping.kodein.Replacements
-import com.juul.stropping.kodein.overwriteWithMockK
-import com.juul.stropping.kodein.overwriteWithSpyK
+import com.juul.stropping.overwriteWithMockK
+import com.juul.stropping.overwriteWithSpyK
 import io.mockk.every
 import org.junit.Test
 import org.junit.runner.RunWith
