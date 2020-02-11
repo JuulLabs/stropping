@@ -88,28 +88,17 @@ task clean(type: Delete) {
 }
 
 /** Helper function for maven publishing. */
-static def addDependency(node, scope, group, artifact, version) {
-    def dependencyNode = node.appendNode('dependency')
-    dependencyNode.appendNode('groupId', group)
-    dependencyNode.appendNode('artifactId', artifact)
-    dependencyNode.appendNode('version', version)
-    dependencyNode.appendNode('scope', scope)
-}
-
-/** Helper function for maven publishing. */
 static def addDependency(node, scope, dependency) {
     if (dependency.group == null) return
     if (dependency.name == null) return
     if (dependency.version == null) return
     if (dependency.name == 'unspecified') return
     if (dependency.version == 'unspecified') return
-    addDependency(
-            node,
-            scope,
-            dependency.group,
-            dependency.name,
-            dependency.version
-    )
+    def dependencyNode = node.appendNode('dependency')
+    dependencyNode.appendNode('groupId', dependency.group)
+    dependencyNode.appendNode('artifactId', dependency.name)
+    dependencyNode.appendNode('version', dependency.version)
+    dependencyNode.appendNode('scope', scope)
 }
 
 apply plugin: 'org.jetbrains.dokka'

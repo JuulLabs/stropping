@@ -65,7 +65,8 @@ class TestProvisioner {
 
     private fun getProvisionFunction(function: KFunction<*>): MethodProvisioner {
         val javaMethod = assertNotNull(function.javaMethod)
-        return assertNotNull(Provisioner.fromMethod(javaMethod))
+        val provisioner = assertNotNull(Provisioner.fromMethod(javaMethod))
+        return assertIsInstance<MethodProvisioner>(provisioner)
     }
 
     @Test
