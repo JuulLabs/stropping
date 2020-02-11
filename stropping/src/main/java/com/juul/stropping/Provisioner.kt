@@ -29,7 +29,7 @@ sealed class Provisioner {
 
     companion object {
         /** Creates a [MethodProvisioner] from a method reference, if possible. */
-        fun fromMethod(method: Method): MethodProvisioner? = when {
+        fun fromMethod(method: Method): Provisioner? = when {
             method.typeParameters.isNotEmpty() -> null
             method.hasAnnotation<Binds>() -> BindsMethodProvisioner(method)
             method.hasAnnotation<Provides>() -> ProvidesMethodProvisioner(method)
@@ -48,10 +48,9 @@ class ValueProvisioner(
     val value: Any,
     override val returnType: Type,
     named: String?,
-    override val multibindings: Multibindings,
-    override val isSingleton: Boolean
+    override val multibindings: Multibindings
 ) : Provisioner() {
-
+    override val isSingleton: Boolean = true
     override val qualifiedType: QualifiedType = QualifiedType(returnType, listOfNotNull(named))
 }
 

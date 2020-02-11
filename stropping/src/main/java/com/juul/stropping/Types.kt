@@ -8,7 +8,12 @@ import kotlin.reflect.typeOf
 /** Internal type used to implement [javaTypeOf]. Otherwise useless. */
 interface TypeHandle<T>
 
-/** Creates a [Type] from a reified function call. Similar to [typeOf] except JVM-type friendly. */
+/**
+ * Creates a [Type] from a reified function call. Similar to [typeOf] except JVM-type friendly.
+ *
+ * Consumers of Stropping likely don't want this, although it is left public for the purpose of
+ * inline function sugar.
+ */
 inline fun <reified T : Any> javaTypeOf(): Type {
     val handle = object : TypeHandle<T> {}
     val supertype = handle::class.supertypes.first().javaType as ParameterizedType

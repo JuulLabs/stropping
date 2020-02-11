@@ -1,6 +1,8 @@
 package com.juul.stropping.kodein
 
 import com.juul.stropping.BindsMethodProvisioner
+import com.juul.stropping.Engine
+import com.juul.stropping.Graph
 import com.juul.stropping.InjectableConstructor
 import com.juul.stropping.InjectableMethod
 import com.juul.stropping.InjectableStaticMethod
@@ -8,18 +10,60 @@ import com.juul.stropping.Multibindings
 import com.juul.stropping.ProvidesMethodProvisioner
 import com.juul.stropping.Provisioner
 import com.juul.stropping.ValueProvisioner
-import com.juul.stropping.inject
 import com.juul.stropping.parameterize
 import org.kodein.di.AnyToken
 import org.kodein.di.Kodein
 import org.kodein.di.TypeToken
 import org.kodein.di.bindings.InSet
 import org.kodein.di.bindings.SetBinding
-import org.kodein.di.conf.ConfigurableKodein
 import org.kodein.di.generic.provider
 import org.kodein.di.generic.singleton
 import org.kodein.di.jvmType
 import javax.inject.Provider
+
+internal fun Kodein.Builder.bindFromDagger(
+    engine: Engine,
+    componentClass: Class<*>
+) {
+    val graph = Graph(componentClass)
+    for (provisioner in graph.provisioners) {
+        bindProvisioner(engine, provisioner)
+    }
+}
+
+internal fun Kodein.Builder.bindProvisioner(
+    engine: Engine,
+    provisioner: Provisioner
+) {
+    fun provide() = when (provisioner) {
+        is BindsMethodProvisioner -> {
+            @Suppress("UNCHECKED_CAST")
+            val implementationClazz = provisioner.parameters.single().type as Class<Any>
+            val constructor = InjectableConstructor.fromClass(implementationClazz)
+            engine.inject(checkNotNull(constructor))
+        }
+        is ProvidesMethodProvisioner -> {
+            if (provisioner.isStatic) {
+                engine.inject(InjectableStaticMethod(provisioner.method))
+            } else {
+                val moduleConstructor = InjectableConstructor.fromClass(provisioner.declaringClass)
+                val module = engine.inject(checkNotNull(moduleConstructor))
+                engine.inject(InjectableMethod(module, provisioner.method))
+            }
+        }
+        is ValueProvisioner -> provisioner.value
+    }
+
+    val typeToken = createTypeToken(provisioner.returnType)
+    val tag = provisioner.qualifiedType.qualifierString()
+    val isSingleton = provisioner.isSingleton
+    @Suppress("UNCHECKED_CAST")
+    when (val entry = provisioner.multibindings) {
+        is Multibindings.Single -> bindSingle(typeToken, tag, isSingleton) { provide() }
+        is Multibindings.ToSet -> bindIntoSet(typeToken, tag, isSingleton) { provide() }
+        is Multibindings.ToMap -> bindIntoMap(typeToken, tag, isSingleton, entry) { provide() }
+    }
+}
 
 private fun Kodein.Builder.bindSingle(
     typeToken: TypeToken<Any>,
@@ -31,7 +75,11 @@ private fun Kodein.Builder.bindSingle(
         true -> singleton { provide() }
         false -> provider { provide() }
     }
-    Bind(typeToken, tag) with binding
+    try {
+        Bind(typeToken, tag) with binding
+    } catch (e: Kodein.OverridingException) {
+        Bind(typeToken, tag, overrides = true) with binding
+    }
 }
 
 private fun Kodein.Builder.bindIntoSet(
@@ -49,11 +97,13 @@ private fun Kodein.Builder.bindIntoSet(
     val setTypeToken = createTypeToken(setType) as TypeToken<Set<Any>>
     try {
         Bind(typeToken, tag).InSet(setTypeToken) with binding
+    } catch (e: Kodein.OverridingException) {
+        Bind(typeToken, tag, overrides = true).InSet(setTypeToken) with binding
     } catch (e: IllegalStateException) {
         // Create set
         Bind(tag) from SetBinding(AnyToken, typeToken, setTypeToken)
         // Retry after the setup
-        Bind(typeToken, tag).InSet(setTypeToken) with binding
+        bindIntoSet(typeToken, tag, isSingleton, provide)
     }
 }
 
@@ -78,7 +128,9 @@ private fun Kodein.Builder.bindIntoMap(
 
     try {
         Bind(pairTypeToken, tag).InSet(setTypeToken) with binding
-    } catch (e: IllegalStateException) {
+    } catch (e: Kodein.OverridingException) {
+        Bind(pairTypeToken, tag, overrides = true).InSet(setTypeToken) with binding
+    }  catch (e: IllegalStateException) {
         // Types used to provide maps
         val directMapType = Map::class.java.parameterize(toMap.keyType, typeToken.jvmType)
         val providerType = Provider::class.java.parameterize(typeToken.jvmType)
@@ -99,40 +151,6 @@ private fun Kodein.Builder.bindIntoMap(
         }
 
         // Retry after the setup
-        Bind(pairTypeToken, tag).InSet(setTypeToken) with binding
-    }
-}
-
-internal fun Kodein.Builder.bind(
-    configurable: ConfigurableKodein,
-    provisioner: Provisioner
-) {
-    fun provide() = when (provisioner) {
-        is BindsMethodProvisioner -> {
-            @Suppress("UNCHECKED_CAST")
-            val implementationClazz = provisioner.parameters.single().type as Class<Any>
-            val constructor = InjectableConstructor.fromClass(implementationClazz)
-            configurable.inject(checkNotNull(constructor))
-        }
-        is ProvidesMethodProvisioner -> {
-            if (provisioner.isStatic) {
-                configurable.inject(InjectableStaticMethod(provisioner.method))
-            } else {
-                val moduleConstructor = InjectableConstructor.fromClass(provisioner.declaringClass)
-                val module = configurable.inject(checkNotNull(moduleConstructor))
-                configurable.inject(InjectableMethod(module, provisioner.method))
-            }
-        }
-        is ValueProvisioner -> provisioner.value
-    }
-
-    val typeToken = createTypeToken(provisioner.returnType)
-    val tag = provisioner.qualifiedType.qualifierString()
-    val isSingleton = provisioner.isSingleton
-    @Suppress("UNCHECKED_CAST")
-    when (val entry = provisioner.multibindings) {
-        is Multibindings.Single -> bindSingle(typeToken, tag, isSingleton) { provide() }
-        is Multibindings.ToSet -> bindIntoSet(typeToken, tag, isSingleton) { provide() }
-        is Multibindings.ToMap -> bindIntoMap(typeToken, tag, isSingleton, entry) { provide() }
+        bindIntoMap(typeToken, tag, isSingleton, toMap, provide)
     }
 }

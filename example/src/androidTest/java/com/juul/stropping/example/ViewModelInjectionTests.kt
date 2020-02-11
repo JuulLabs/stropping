@@ -2,12 +2,12 @@ package com.juul.stropping.example
 
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.juul.stropping.Replacements
 import com.juul.stropping.example.activity.MainActivity
 import com.juul.stropping.example.api.BASE_URL_NAME
 import com.juul.stropping.example.api.BoundApi
 import com.juul.stropping.example.api.ProvidedApi
 import com.juul.stropping.example.api.USER_AGENT_NAME
-import com.juul.stropping.kodein.Replacements
 import com.juul.stropping.overwriteWithMockK
 import com.juul.stropping.overwriteWithSpyK
 import io.mockk.every
@@ -19,7 +19,7 @@ class ViewModelInjectionTests {
 
     @Test
     fun useOriginalDependencyGraph() {
-        Replacements.of<Component> { reset() }
+        Replacements.of<Component> {}
         val scenario = ActivityScenario.launch(MainActivity::class.java)
         Thread.sleep(1000)
         scenario.close()

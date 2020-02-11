@@ -40,7 +40,7 @@ class Graph(componentClass: Class<*>) {
     }
 
     /** The [Provisioner]s found in [includedClasses]. */
-    val provisioners: List<MethodProvisioner> by lazy {
+    val provisioners: List<Provisioner> by lazy {
         includedClasses.asSequence()
             .flatMap { it.declaredMethods.asSequence() }
             .mapNotNull { Provisioner.fromMethod(it) }

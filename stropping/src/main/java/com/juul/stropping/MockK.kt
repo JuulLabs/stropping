@@ -1,11 +1,10 @@
 package com.juul.stropping
 
-import com.juul.stropping.kodein.ReplacementHandle
 import io.mockk.mockk
 import io.mockk.spyk
 
-/** Sugar for calling [ReplacementHandle.overwrite] with a new [mockk]. Returns the mock. */
-inline fun <reified T : Any> ReplacementHandle.overwriteWithMockK(
+/** Sugar for calling [EngineReplacementHandle.overwrite] with a new [mockk]. Returns the mock. */
+inline fun <reified T : Any> EngineReplacementHandle.overwriteWithMockK(
     named: String? = null,
     relaxed: Boolean = false,
     relaxUnitFun: Boolean = false,
@@ -16,8 +15,8 @@ inline fun <reified T : Any> ReplacementHandle.overwriteWithMockK(
     return mock
 }
 
-/** Sugar for creating a [spyk] from the value currently [ReplacementHandle.provide]d, then calling [ReplacementHandle.overwrite]. */
-inline fun <reified T : Any> ReplacementHandle.overwriteWithSpyK(
+/** Sugar for creating a [spyk] from the value currently [EngineReplacementHandle.provide]d, then calling [EngineReplacementHandle.overwrite]. */
+inline fun <reified T : Any> EngineReplacementHandle.overwriteWithSpyK(
     named: String? = null,
     configuration: T.() -> Unit = {}
 ): T {
@@ -26,8 +25,8 @@ inline fun <reified T : Any> ReplacementHandle.overwriteWithSpyK(
     return spy
 }
 
-/** Sugar for calling [ReplacementHandle.addIntoMap] with a new `mockk`. Returns the mock. */
-inline fun <reified Key : Any, reified MapValue : Any, reified MockValue : MapValue> ReplacementHandle.addMockKIntoMap(
+/** Sugar for calling [EngineReplacementHandle.addIntoMap] with a new `mockk`. Returns the mock. */
+inline fun <reified Key : Any, reified MapValue : Any, reified MockValue : MapValue> EngineReplacementHandle.addMockKIntoMap(
     key: Key,
     named: String? = null,
     relaxed: Boolean = false,
