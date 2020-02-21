@@ -127,7 +127,11 @@ class ReplacementHandle(
         kodeinField.isAccessible = false
         kodein.addConfig {
             val tag = createStringTag(listOfNotNull(named))
-            bind<T>(overrides = true, tag = tag) with instance(value)
+            try {
+                bind<T>(overrides = true, tag = tag) with instance(value)
+            } catch (e: Kodein.OverridingException) {
+                bind<T>(overrides = false, tag = tag) with instance(value)
+            }
         }
     }
 
