@@ -3,7 +3,7 @@
 buildscript {
     ext.metadata = [
             // groupId: 'com.juul.stropping',
-            groupId: 'com.github.juullabs-oss.stropping',
+            groupId: 'com.github.juullabs-oss',
     ]
     ext.versions = [
             buildTools: '29.0.2',
@@ -17,7 +17,7 @@ buildscript {
                     min    : 21,
                     target : 29,
             ],
-            stropping : '0.0.4',
+            stropping : '0.1.0',
     ]
     ext.deps = [
             androidx : [

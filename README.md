@@ -59,7 +59,7 @@ Then, in your app `build.gradle`:
 
 ```gradle
 dependencies {
-    androidTestImplementation "com.github.juullabs-oss.stropping:stropping:0.0.3"
+    androidTestImplementation "com.github.juullabs-oss:stropping:0.1.0"
 }
 ```
 

@@ -42,7 +42,7 @@ project.afterEvaluate {
         publications {
             library(MavenPublication) {
                 setGroupId metadata.groupId
-                setArtifactId 'kodein'
+                setArtifactId 'stropping'
                 version android.defaultConfig.versionName
                 artifact bundleReleaseAar
 
