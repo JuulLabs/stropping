@@ -26,7 +26,7 @@ interface Engine {
     interface Builder {
         fun build(
             context: Application,
-            componentClass: KClass<*>,
+            graph: Graph,
             androidInjector: DispatchingAndroidInjector<*>
         ): Engine
     }

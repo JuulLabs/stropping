@@ -23,9 +23,8 @@ import javax.inject.Provider
 
 internal fun Kodein.Builder.bindFromDagger(
     engine: Engine,
-    componentClass: Class<*>
+    graph: Graph
 ) {
-    val graph = Graph(componentClass)
     for (provisioner in graph.provisioners) {
         bindProvisioner(engine, provisioner)
     }

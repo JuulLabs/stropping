@@ -3,7 +3,8 @@
 # Stropping
 
 **Stropping** performs reflection on Dagger.
-It finds ways to replace a `DaggerApplication`'s `androidInjector` with one you can modify at runtime.
+It injects itself into your `Application`, replacing the dagger component (and the `androidInjector` if `DaggerAndroid` is used).
+The replacement component is mutable at runtime, which allows per-test overrides of single fields.
 
 This is useful when performing tests which have need to communicate with external services, such as when using [mockwebserver].
 The traditional approach for installing this in your application, as illustrated by [OkCupid's blogpost], is to create a subclass of your `Application` and launch it using a custom `AndroidJUnitRunner`.
@@ -41,7 +42,16 @@ Overall, tests end up looking something like this:
 **Stropping**'s mocking abilities are implemented by reflecting over your `Application` instance.
 The implementation assumes that your application extends from `DaggerApplication`, and that your activities/fragments are injected by calls to `AndroidInjection.inject` (automatic for `DaggerActivity` and the like).
 
-Additionally, we create a mocked instance of the `final` class `DispatchingAndroidInjector`, which means that our application will fail to run on pre-Pie versions of Android.
+**Note:** support for replacing the application component as a field has been added, but is not yet robust.
+However, it supports one of the most common/easy uses:
+
+```kotlin
+class MyApplication {
+    val component: MyComponent by lazy {
+        // Instantiate `DaggerMyComponent` here
+    }
+}
+```
 
 ## Gradle
 
@@ -59,7 +69,7 @@ Then, in your app `build.gradle`:
 
 ```gradle
 dependencies {
-    androidTestImplementation "com.github.juullabs-oss:stropping:0.1.0"
+    androidTestImplementation "com.github.juullabs-oss:stropping:0.1.1"
 }
 ```
 
@@ -77,7 +87,7 @@ dependencies {
 # License
 
 ```
-Copyright 2019 JUUL Labs, Inc.
+Copyright 2019-2020 JUUL Labs, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

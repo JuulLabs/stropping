@@ -2,6 +2,8 @@ package com.juul.stropping
 
 import dagger.Component
 import dagger.Module
+import dagger.android.ContributesAndroidInjector
+import java.lang.reflect.Method
 
 /**
  * Entry point for reflection over a Dagger graph.
@@ -39,11 +41,22 @@ class Graph(componentClass: Class<*>) {
         classes
     }
 
-    /** The [Provisioner]s found in [includedClasses]. */
-    val provisioners: List<Provisioner> by lazy {
+    private val declaredMethods: Sequence<Method> by lazy {
         includedClasses.asSequence()
             .flatMap { it.declaredMethods.asSequence() }
+    }
+
+    /** The [Provisioner]s found in [includedClasses]. */
+    val provisioners: List<Provisioner> by lazy {
+        declaredMethods
             .mapNotNull { Provisioner.fromMethod(it) }
+            .toList()
+    }
+
+    val androidInjectable: List<Class<*>> by lazy {
+        declaredMethods
+            .filter { it.hasAnnotation<ContributesAndroidInjector>() }
+            .map { it.returnType }
             .toList()
     }
 }

@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.util.Log
 import com.juul.stropping.Engine
+import com.juul.stropping.Graph
 import com.juul.stropping.InjectableConstructor
 import com.juul.stropping.Multibindings
 import com.juul.stropping.QualifiedType
@@ -31,23 +32,23 @@ private const val TAG = "Stropping.Kodein"
 
 class KodeinEngine(
     context: Application,
-    componentClass: KClass<*>,
+    graph: Graph,
     androidInjector: DispatchingAndroidInjector<*>
 ) : Engine {
 
     class Builder : Engine.Builder {
         override fun build(
             context: Application,
-            componentClass: KClass<*>,
+            graph: Graph,
             androidInjector: DispatchingAndroidInjector<*>
-        ): Engine = KodeinEngine(context, componentClass, androidInjector)
+        ): Engine = KodeinEngine(context, graph, androidInjector)
     }
 
     /** Mutable kodein graph. */
     private val kodein = ConfigurableKodein(mutable = true).apply {
         val source = Kodein(allowSilentOverride = true) {
             import(androidXModule(context))
-            bindFromDagger(this@KodeinEngine, componentClass.java)
+            bindFromDagger(this@KodeinEngine, graph)
             bind<DispatchingAndroidInjector<*>>() with instance(androidInjector)
             bind<Context>() with instance(context)
             bind<Application>() with instance(context)
