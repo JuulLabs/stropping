@@ -3,7 +3,7 @@
 buildscript {
     ext.metadata = [
             // groupId: 'com.juul.stropping',
-            groupId: 'com.github.juullabs-oss.stropping',
+            groupId: 'com.github.juullabs-oss',
     ]
     ext.versions = [
             buildTools: '29.0.2',
@@ -17,7 +17,7 @@ buildscript {
                     min    : 21,
                     target : 29,
             ],
-            stropping : '0.0.4',
+            stropping : '0.1.1',
     ]
     ext.deps = [
             androidx : [
@@ -60,22 +60,17 @@ buildscript {
             mockk    : [
                     android: "io.mockk:mockk-android:$versions.mockk",
             ],
-            stropping: [
-                    common: project(":common"),
-                    core  : project(":core"),
-                    kodein: project(":kodein"),
-            ],
+            stropping: project(":stropping")
     ]
     repositories {
         google()
         jcenter()
-
     }
+
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.1'
+        classpath 'com.android.tools.build:gradle:3.6.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:0.10.0"
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
         classpath 'com.dicedmelon.gradle:jacoco-android:0.1.4'
     }
 }
@@ -92,44 +87,27 @@ task clean(type: Delete) {
 }
 
 /** Helper function for maven publishing. */
-static def addDependency(node, scope, group, artifact, version) {
-    def dependencyNode = node.appendNode('dependency')
-    dependencyNode.appendNode('groupId', group)
-    dependencyNode.appendNode('artifactId', artifact)
-    dependencyNode.appendNode('version', version)
-    dependencyNode.appendNode('scope', scope)
-}
-
-/** Helper function for maven publishing. */
 static def addDependency(node, scope, dependency) {
     if (dependency.group == null) return
     if (dependency.name == null) return
     if (dependency.version == null) return
     if (dependency.name == 'unspecified') return
     if (dependency.version == 'unspecified') return
-    addDependency(
-            node,
-            scope,
-            dependency.group,
-            dependency.name,
-            dependency.version
-    )
+    def dependencyNode = node.appendNode('dependency')
+    dependencyNode.appendNode('groupId', dependency.group)
+    dependencyNode.appendNode('artifactId', dependency.name)
+    dependencyNode.appendNode('version', dependency.version)
+    dependencyNode.appendNode('scope', scope)
 }
 
 apply plugin: 'org.jetbrains.dokka'
 
 dokka {
-    subProjects = [
-            "core",
-            "kodein"
-    ]
+    subProjects = ["stropping"]
     configuration {
         reportUndocumented = true
         jdkVersion = 8
-        includes = [
-                "core/package.md",
-                "kodein/package.md",
-        ]
+        includes = ["stropping/package.md"]
         externalDocumentationLink {
             url = new URL("https://javaee.github.io/javaee-spec/javadocs/")
             packageListUrl = new URL(url, "package-list")
@@ -141,5 +119,4 @@ dokka {
     }
 }
 
-dokka.dependsOn ':core:assemble'
-dokka.dependsOn ':kodein:assemble'
+dokka.dependsOn ':stropping:assemble'
