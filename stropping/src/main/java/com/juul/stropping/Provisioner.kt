@@ -29,7 +29,7 @@ sealed class Provisioner {
 
     companion object {
         /** Creates a [MethodProvisioner] from a method reference, if possible. */
-        fun fromMethod(method: Method): Provisioner? = when {
+        fun fromMethod(method: Method): MethodProvisioner? = when {
             method.typeParameters.isNotEmpty() -> null
             method.hasAnnotation<Binds>() -> BindsMethodProvisioner(method)
             method.hasAnnotation<Provides>() -> ProvidesMethodProvisioner(method)
@@ -87,6 +87,11 @@ sealed class MethodProvisioner(
 
     override val qualifiedType: QualifiedType
         get() = QualifiedType(returnType, qualifiers)
+
+    override fun toString(): String = when (val combinedNamed = qualifiedType.qualifierString()) {
+        null -> ""
+        else -> "@CombinedName($combinedNamed) "
+    } + "${declaringClass.canonicalName}.${method.name}: $returnType"
 }
 
 /** Instance of [MethodProvisioner] for [Binds] annotated methods. */
@@ -97,6 +102,9 @@ class BindsMethodProvisioner(
         require(method.hasAnnotation<Binds>())
         require(parameters.size == 1)
     }
+
+    override fun toString(): String =
+        "@Binds ${super.toString()}"
 }
 
 /** Instance of [MethodProvisioner] for [Provides] annotated methods. */
@@ -108,4 +116,9 @@ class ProvidesMethodProvisioner(
     }
 
     val isStatic = Modifier.isStatic(method.modifiers)
+
+    override fun toString(): String = when (isStatic) {
+        true ->  "@JvmStatic "
+        false -> ""
+    } + "@Provides ${super.toString()}"
 }

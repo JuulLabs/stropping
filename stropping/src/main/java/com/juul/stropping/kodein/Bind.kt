@@ -1,5 +1,6 @@
 package com.juul.stropping.kodein
 
+import android.util.Log
 import com.juul.stropping.BindsMethodProvisioner
 import com.juul.stropping.Engine
 import com.juul.stropping.Graph
@@ -19,13 +20,17 @@ import org.kodein.di.bindings.SetBinding
 import org.kodein.di.generic.provider
 import org.kodein.di.generic.singleton
 import org.kodein.di.jvmType
+import java.lang.reflect.Modifier
 import javax.inject.Provider
+
+private const val TAG = "Stropping.Bind"
 
 internal fun Kodein.Builder.bindFromDagger(
     engine: Engine,
     graph: Graph
 ) {
     for (provisioner in graph.provisioners) {
+        Log.v(TAG, "Provisioner: $provisioner")
         bindProvisioner(engine, provisioner)
     }
 }
@@ -45,8 +50,12 @@ internal fun Kodein.Builder.bindProvisioner(
             if (provisioner.isStatic) {
                 engine.inject(InjectableStaticMethod(provisioner.method))
             } else {
-                val moduleConstructor = InjectableConstructor.fromClass(provisioner.declaringClass)
-                val module = engine.inject(checkNotNull(moduleConstructor))
+                val moduleClass = provisioner.declaringClass
+                val module = moduleClass.kotlin.objectInstance ?: run {
+                    val constructor = InjectableConstructor.fromClass(moduleClass)
+                        ?: error("Unable to call non-static method for class ${moduleClass.canonicalName}.")
+                    engine.inject(constructor)
+                }
                 engine.inject(InjectableMethod(module, provisioner.method))
             }
         }
