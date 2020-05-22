@@ -1,4 +1,3 @@
 rootProject.name = 'Stropping'
 include ':stropping',
         ':example'
-

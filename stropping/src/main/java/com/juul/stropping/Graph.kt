@@ -1,9 +1,13 @@
 package com.juul.stropping
 
+import android.util.Log
 import dagger.Component
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import java.lang.reflect.Method
+import kotlin.reflect.full.companionObject
+
+private const val TAG = "Stropping.Graph"
 
 /**
  * Entry point for reflection over a Dagger graph.
@@ -24,7 +28,13 @@ class Graph(componentClass: Class<*>) {
     val includedClasses: Set<Class<*>> by lazy {
         val classes = mutableSetOf<Class<*>>()
         fun addClassAndIncludes(clazz: Class<*>) {
+            Log.v(TAG, "Include class: ${clazz.canonicalName}")
             classes += clazz
+            val companion = clazz.kotlin.companionObject
+            if (companion != null) {
+                classes += companion.java
+                Log.v(TAG, "Include class: ${companion.java.canonicalName}")
+            }
             val componentAnnotation = clazz.findAnnotation<Component>()
             val moduleAnnotation = clazz.findAnnotation<Module>()
             val directlyIncludedClasses = arrayOf(
@@ -47,7 +57,7 @@ class Graph(componentClass: Class<*>) {
     }
 
     /** The [Provisioner]s found in [includedClasses]. */
-    val provisioners: List<Provisioner> by lazy {
+    val provisioners: List<MethodProvisioner> by lazy {
         declaredMethods
             .mapNotNull { Provisioner.fromMethod(it) }
             .toList()
