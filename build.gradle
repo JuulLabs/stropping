@@ -7,7 +7,7 @@ buildscript {
     ]
     ext.versions = [
             buildTools: '29.0.2',
-            dagger    : '2.24',
+            dagger    : '2.27',
             jvmTarget : '1.8',
             kodein    : '6.3.3',
             kotlin    : '1.3.41',
@@ -17,7 +17,7 @@ buildscript {
                     min    : 21,
                     target : 29,
             ],
-            stropping : '0.1.2',
+            stropping : '0.1.3',
     ]
     ext.deps = [
             androidx : [
