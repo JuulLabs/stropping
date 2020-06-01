@@ -11,6 +11,7 @@ import com.juul.stropping.example.api.USER_AGENT_NAME
 import com.juul.stropping.overwriteWithMockK
 import com.juul.stropping.overwriteWithSpyK
 import io.mockk.every
+import junit.framework.TestCase.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -22,6 +23,10 @@ class ViewModelInjectionTests {
         Replacements.of<Component> {}
         val scenario = ActivityScenario.launch(MainActivity::class.java)
         Thread.sleep(1000)
+        scenario.onActivity { activity ->
+            // Expect the member-injected baseUrl to match the constructor-injected baseUrl
+            assertEquals(activity.viewModel.namedParametersApi.baseUrl, activity.viewModel.baseUrl)
+        }
         scenario.close()
     }
 

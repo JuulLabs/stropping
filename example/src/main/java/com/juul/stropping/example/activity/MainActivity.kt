@@ -1,6 +1,7 @@
 package com.juul.stropping.example.activity
 
 import android.os.Bundle
+import androidx.annotation.VisibleForTesting
 import com.juul.stropping.example.R
 import com.juul.stropping.example.viewmodel.MainViewModel
 import com.juul.stropping.example.viewmodel.viewModel
@@ -9,7 +10,8 @@ import kotlinx.android.synthetic.main.activity_main.mainText
 
 class MainActivity : DaggerAppCompatActivity() {
 
-    private val viewModel by viewModel<MainViewModel>()
+    @VisibleForTesting
+    val viewModel by viewModel<MainViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
