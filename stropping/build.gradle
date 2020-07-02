@@ -1,11 +1,9 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-apply plugin: 'maven-publish'
+apply plugin: 'com.vanniktech.maven.publish'
 apply plugin: 'org.jetbrains.dokka'
 apply from: rootProject.file('gradle/jacoco-android.gradle')
-
-group=metadata.groupId
 
 android {
     compileSdkVersion versions.sdk.compile
@@ -36,29 +34,6 @@ android {
     }
 }
 
-project.afterEvaluate {
-    publishing {
-        publications {
-            library(MavenPublication) {
-                setGroupId metadata.groupId
-                setArtifactId 'stropping'
-                version android.defaultConfig.versionName
-                artifact bundleReleaseAar
-
-                pom.withXml {
-                    def dependencies = asNode().appendNode('dependencies')
-                    configurations.implementation.allDependencies.each { dependency ->
-                        addDependency(dependencies, 'runtime', dependency)
-                    }
-                    configurations.api.allDependencies.each { dependency ->
-                        addDependency(dependencies, 'compile', dependency)
-                    }
-                }
-            }
-        }
-    }
-}
-
 dokka {
     configuration {
         jdkVersion = 8
@@ -75,7 +50,6 @@ dokka {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation deps.androidx.appcompat
     implementation deps.androidx.core
     implementation deps.androidx.test.ext.junit
