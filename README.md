@@ -1,4 +1,4 @@
-[![codecov](https://codecov.io/gh/JuulLabs-OSS/stropping/branch/master/graph/badge.svg)](https://codecov.io/gh/JuulLabs-OSS/stropping)
+[![codecov](https://codecov.io/gh/JuulLabs/stropping/branch/master/graph/badge.svg)](https://codecov.io/gh/JuulLabs/stropping)
 
 # Stropping
 
@@ -55,12 +55,14 @@ class MyApplication {
 
 ## Gradle
 
-In your project-level `build.gradle`, you will need to make sure that jitpack is enabled as a repository:
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.juul.stropping/stropping/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.juul.stropping/stropping)
+
+In your project-level `build.gradle`:
 
 ```gradle
 allprojects {
     repositories {
-        maven { url "https://jitpack.io" }
+        jcenter() // or mavenCentral()
     }
 }
 ```
@@ -69,7 +71,7 @@ Then, in your app `build.gradle`:
 
 ```gradle
 dependencies {
-    androidTestImplementation "com.github.juullabs-oss:stropping:$version"
+    androidTestImplementation "com.juul.stropping:stropping:$version"
 }
 ```
 
@@ -87,7 +89,7 @@ dependencies {
 # License
 
 ```
-Copyright 2019 JUUL Labs, Inc.
+Copyright 2020 JUUL Labs, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
