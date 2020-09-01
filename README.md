@@ -2,7 +2,7 @@
 
 # Deprecation
 
-Stropping doesn't work and isn't necessary in the world of [Hilt](https://dagger.dev/hilt/).
+Stropping isn't necessary in the world of [Hilt](https://dagger.dev/hilt/).
 If you need the ability to uninstall individual classes from your tests, see [Pommel](https://github.com/JuulLabs/pommel) instead, an annotation processor which generates single-definition modules.
 
 # Stropping
